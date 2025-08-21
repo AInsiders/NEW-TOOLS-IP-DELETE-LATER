@@ -1,0 +1,3236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IP Location Checker - A.Insiders</title>
+    
+    <!-- Favicon Setup -->
+    <link rel="icon" type="image/png" href="ainsiders-logo.png" id="main-favicon">
+    <link rel="apple-touch-icon" href="ainsiders-logo.png">
+    <meta name="description" content="Check IP address location, geolocation data, ISP information, and network details with our comprehensive IP checker tool.">
+    <meta name="keywords" content="IP checker, IP location, geolocation, IP address lookup, ISP information, network details">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="brain-styles.css">
+    <link rel="stylesheet" href="sidebar-menu.css">
+    
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Leaflet CSS for maps -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
+    <!-- Favicon Animation Script -->
+    <script src="favicon-animation.js"></script>
+    
+    <style>
+        /* IP Checker Page Specific Styles */
+        body.ip-checker-page {
+            background: var(--bg-primary);
+        }
+        
+        body.ip-checker-page * {
+            color: var(--text-primary);
+        }
+        
+        body.ip-checker-page #aiCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.3;
+            pointer-events: none;
+            cursor: auto !important;
+            background: linear-gradient(135deg, rgba(0, 102, 255, 0.1), rgba(77, 148, 255, 0.1));
+        }
+        
+        /* Ensure cursor shows properly on IP checker page */
+        body.ip-checker-page {
+            cursor: auto !important;
+        }
+        
+        body.ip-checker-page * {
+            cursor: auto !important;
+        }
+        
+        /* Show pointer cursor for interactive elements */
+        body.ip-checker-page a,
+        body.ip-checker-page button,
+        body.ip-checker-page input,
+        body.ip-checker-page textarea,
+        body.ip-checker-page select,
+        body.ip-checker-page .nav-toggle,
+        body.ip-checker-page .nav-menu,
+        body.ip-checker-page .dropdown-menu,
+        body.ip-checker-page .check-ip-btn,
+        body.ip-checker-page .copy-ip-btn {
+            cursor: pointer !important;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        /* Ensure main content is always visible */
+        #mainContent {
+            display: block !important;
+            min-height: 100vh;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Ensure website content is visible */
+        .website-content {
+            display: block !important;
+            min-height: 100vh;
+        }
+        
+        .ip-checker-hero {
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.9), rgba(10, 10, 10, 0.9));
+            padding: 3rem 0;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .ip-checker-hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(0, 102, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(77, 148, 255, 0.1) 0%, transparent 50%);
+            pointer-events: none;
+        }
+        
+        .ip-checker-hero h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .ip-checker-hero p {
+            font-size: 1.125rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto 2rem;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .hero h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, #0066ff, #4d94ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .hero p {
+            font-size: 1.125rem;
+            color: #cccccc;
+            max-width: 600px;
+            margin: 0 auto 2rem;
+        }
+        
+        .ip-input-section {
+            background: rgba(0, 0, 0, 0.8);
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 2rem;
+            margin: 2rem auto;
+            max-width: 600px;
+        }
+        
+        .ip-input-group {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .ip-input {
+            flex: 1;
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 1rem 1.5rem;
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+            font-family: 'JetBrains Mono', monospace;
+            transition: var(--transition-smooth);
+        }
+        
+        .ip-input:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 3px rgba(0, 102, 255, 0.1);
+        }
+        
+        .ip-input::placeholder {
+            color: var(--text-muted);
+        }
+        
+        .check-ip-btn {
+            background: var(--accent-primary);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-weight: 600;
+            transition: var(--transition-smooth);
+            white-space: nowrap;
+        }
+        
+        .check-ip-btn:hover {
+            background: var(--accent-secondary);
+            transform: translateY(-2px);
+        }
+        
+        .check-ip-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .current-ip-info {
+            background: rgba(0, 102, 255, 0.1);
+            border: 1px solid rgba(0, 102, 255, 0.3);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1rem;
+            text-align: center;
+        }
+        
+        .current-ip-label {
+            color: #999;
+            font-size: 0.875rem;
+            margin-bottom: 0.5rem;
+        }
+        
+                 .current-ip-address {
+             font-family: 'JetBrains Mono', monospace;
+             font-size: 1.25rem;
+            color: #0066ff;
+             font-weight: 600;
+             margin-bottom: 1rem;
+         }
+         
+         .copy-ip-btn {
+             background: rgba(0, 102, 255, 0.2);
+             border: 1px solid rgba(0, 102, 255, 0.3);
+            color: #0066ff;
+             padding: 0.5rem 1rem;
+            border-radius: 8px;
+             cursor: pointer;
+             font-size: 0.875rem;
+             font-weight: 500;
+            transition: all 0.3s ease;
+             display: flex;
+             align-items: center;
+             gap: 0.5rem;
+             margin: 0 auto;
+         }
+         
+         .copy-ip-btn:hover {
+             background: rgba(0, 102, 255, 0.3);
+             border-color: #0066ff;
+             transform: translateY(-1px);
+         }
+         
+
+        
+        .results-section {
+            padding: 3rem 0;
+        }
+        
+        .info-section {
+            margin-bottom: 3rem;
+            background: rgba(0, 0, 0, 0.8);
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 2rem;
+        }
+        
+        .section-header {
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #333;
+        }
+        
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #ffffff;
+            margin-bottom: 0.5rem;
+        }
+        
+        .section-subtitle {
+            color: #999;
+            font-size: 0.875rem;
+        }
+        
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+        
+        .detail-item {
+            padding: 1rem;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            border: 1px solid #333;
+        }
+        
+        .detail-label {
+            color: #999;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.5rem;
+        }
+        
+        .detail-value {
+            color: #ffffff;
+            font-size: 1rem;
+            font-weight: 500;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        
+        .detail-value.location {
+            color: #0066ff;
+        }
+        
+        .detail-value.isp {
+            color: #4d94ff;
+        }
+        
+        .detail-item.full-width {
+            grid-column: 1 / -1;
+        }
+        
+        .ip-data-grid,
+        .geo-data-grid,
+        .ip-rep-grid,
+        .client-props-grid,
+        .headers-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+        
+        .neighborhood-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 0.25rem;
+            margin-top: 0.5rem;
+        }
+        
+        .neighbor-ip {
+            background: rgba(0, 102, 255, 0.1);
+            border: 1px solid rgba(0, 102, 255, 0.2);
+            border-radius: 4px;
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+            font-family: 'JetBrains Mono', monospace;
+            text-align: center;
+            color: #0066ff;
+        }
+        
+        .detail-value strong {
+            color: var(--accent-primary);
+        }
+        
+        .maps-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+        
+        .map-container {
+            background: rgba(0, 0, 0, 0.8);
+            border: 1px solid #333;
+            border-radius: 8px;
+            overflow: hidden;
+            height: 400px;
+            position: relative;
+        }
+        
+        .map-title {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 0.5rem;
+            text-align: center;
+            font-weight: 600;
+            z-index: 1001;
+            border-bottom: 1px solid #333;
+        }
+        
+        #ipMap {
+            width: 100%;
+            height: 100%;
+            background: #1a1a1a;
+        }
+        
+        .map-overlay {
+            position: absolute;
+            top: 1rem;
+            left: 1rem;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            z-index: 1000;
+        }
+        
+        .error-message {
+            background: rgba(255, 0, 0, 0.1);
+            border: 1px solid rgba(255, 0, 0, 0.3);
+            color: #ff6b6b;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+            display: none;
+        }
+        
+        .success-message {
+            background: rgba(0, 170, 0, 0.1);
+            border: 1px solid rgba(0, 170, 0, 0.3);
+            color: #00aa00;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+            display: none;
+        }
+        
+        .loading-spinner {
+            display: none;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top: 2px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-left: 0.5rem;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Privacy Policy Styles */
+        .privacy-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(10px);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+        
+        .privacy-modal {
+            background: rgba(0, 0, 0, 0.95);
+            border: 1px solid #0066ff;
+            border-radius: 8px;
+            max-width: 600px;
+            width: 100%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 0 50px rgba(0, 102, 255, 0.3);
+        }
+        
+        .privacy-header {
+            background: linear-gradient(135deg, #0066ff, #4d94ff);
+            padding: 1.5rem;
+            border-radius: 8px 8px 0 0;
+            text-align: center;
+        }
+        
+        .privacy-header h2 {
+            color: white;
+            margin: 0;
+            font-size: 1.5rem;
+        }
+        
+        .privacy-content {
+            padding: 2rem;
+            color: #ffffff;
+        }
+        
+        .privacy-content h3 {
+            color: #0066ff;
+            margin: 1.5rem 0 0.5rem 0;
+            font-size: 1.1rem;
+        }
+        
+        .privacy-content ul {
+            margin: 0.5rem 0 1rem 1.5rem;
+        }
+        
+        .privacy-content li {
+            margin-bottom: 0.25rem;
+            color: #cccccc;
+        }
+        
+        .privacy-content p {
+            margin-bottom: 1rem;
+            line-height: 1.6;
+        }
+        
+        .privacy-actions {
+            padding: 1.5rem 2rem 2rem;
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+        }
+        
+        .privacy-btn {
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1rem;
+        }
+        
+        .privacy-btn.accept {
+            background: #0066ff;
+            color: white;
+        }
+        
+        .privacy-btn.accept:hover {
+            background: #0052cc;
+            transform: translateY(-2px);
+        }
+        
+        .privacy-btn.decline {
+            background: rgba(255, 0, 0, 0.2);
+            color: #ff6b6b;
+            border: 1px solid rgba(255, 0, 0, 0.3);
+        }
+        
+                 .privacy-btn.decline:hover {
+             background: rgba(255, 0, 0, 0.3);
+             transform: translateY(-2px);
+         }
+         
+         .privacy-footer {
+             padding: 1rem 2rem;
+             text-align: center;
+             border-top: 1px solid #333;
+             background: rgba(0, 0, 0, 0.3);
+         }
+         
+         .privacy-footer small {
+             color: #999;
+             font-size: 0.875rem;
+         }
+         
+         /* Debug Log Button */
+         .debug-log-btn {
+             background: rgba(255, 165, 0, 0.2);
+             border: 1px solid rgba(255, 165, 0, 0.3);
+             color: #ffa500;
+             padding: 0.5rem 1rem;
+             border-radius: 8px;
+             cursor: pointer;
+             font-size: 0.875rem;
+             font-weight: 500;
+             transition: all 0.3s ease;
+             display: flex;
+             align-items: center;
+             gap: 0.5rem;
+             margin: 0.5rem auto 0;
+         }
+         
+         .debug-log-btn:hover {
+             background: rgba(255, 165, 0, 0.3);
+             border-color: #ffa500;
+             transform: translateY(-1px);
+         }
+
+         .backend-status {
+             display: flex;
+             align-items: center;
+             gap: 0.5rem;
+             margin-top: 1rem;
+             padding: 0.5rem 1rem;
+             border-radius: 8px;
+             font-size: 0.875rem;
+             font-weight: 500;
+         }
+
+         .backend-status.connected {
+             background: rgba(76, 175, 80, 0.1);
+             border: 1px solid rgba(76, 175, 80, 0.3);
+             color: #4CAF50;
+         }
+
+         .backend-status.disconnected {
+             background: rgba(244, 67, 54, 0.1);
+             border: 1px solid rgba(244, 67, 54, 0.3);
+             color: #f44336;
+         }
+
+         .backend-status.checking {
+             background: rgba(255, 152, 0, 0.1);
+             border: 1px solid rgba(255, 152, 0, 0.3);
+             color: #ff9800;
+         }
+         
+         /* Debug Modal */
+         .debug-modal {
+             display: none;
+             position: fixed;
+             z-index: 10000;
+             left: 0;
+             top: 0;
+             width: 100%;
+             height: 100%;
+             background-color: rgba(0, 0, 0, 0.8);
+             backdrop-filter: blur(5px);
+         }
+         
+         .debug-modal-content {
+             background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+             margin: 5% auto;
+             padding: 0;
+             border: 1px solid #333;
+             border-radius: 12px;
+             width: 90%;
+             max-width: 800px;
+             max-height: 80vh;
+             overflow: hidden;
+             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+         }
+         
+         .debug-modal-header {
+             background: linear-gradient(135deg, #ffa500 0%, #ff8c00 100%);
+             color: #000;
+             padding: 1rem 1.5rem;
+             display: flex;
+             justify-content: space-between;
+             align-items: center;
+             border-bottom: 1px solid #333;
+         }
+         
+         .debug-modal-header h3 {
+             margin: 0;
+             font-size: 1.25rem;
+             font-weight: 600;
+         }
+         
+         .close-debug-btn {
+             background: none;
+             border: none;
+             color: #000;
+             font-size: 1.5rem;
+             cursor: pointer;
+             padding: 0.25rem;
+             border-radius: 4px;
+             transition: background-color 0.3s ease;
+         }
+         
+         .close-debug-btn:hover {
+             background-color: rgba(0, 0, 0, 0.1);
+         }
+         
+         .debug-modal-body {
+             padding: 1.5rem;
+             max-height: 60vh;
+             overflow-y: auto;
+         }
+         
+         .debug-info {
+             background: rgba(0, 0, 0, 0.3);
+             padding: 1rem;
+             border-radius: 8px;
+             margin-bottom: 1rem;
+             border: 1px solid #333;
+         }
+         
+         .debug-info p {
+             margin: 0.5rem 0;
+             color: #fff;
+             font-size: 0.875rem;
+         }
+         
+         .debug-info span {
+             color: #ffa500;
+             font-family: 'JetBrains Mono', monospace;
+         }
+         
+         .debug-log-container {
+             margin-bottom: 1rem;
+         }
+         
+         .debug-log-container label {
+             display: block;
+             color: #fff;
+             margin-bottom: 0.5rem;
+             font-weight: 500;
+         }
+         
+         #debugLogText {
+             width: 100%;
+             height: 200px;
+             background: #000;
+             color: #00ff00;
+             border: 1px solid #333;
+             border-radius: 8px;
+             padding: 1rem;
+             font-family: 'JetBrains Mono', monospace;
+             font-size: 0.75rem;
+             line-height: 1.4;
+             resize: vertical;
+             white-space: pre-wrap;
+             word-wrap: break-word;
+         }
+         
+         .debug-actions {
+             display: flex;
+             gap: 1rem;
+             justify-content: flex-end;
+         }
+         
+         .debug-btn {
+             padding: 0.75rem 1.5rem;
+             border: none;
+             border-radius: 8px;
+             cursor: pointer;
+             font-weight: 500;
+             display: flex;
+             align-items: center;
+             gap: 0.5rem;
+             transition: all 0.3s ease;
+         }
+         
+         .debug-btn.copy {
+             background: #0066ff;
+             color: white;
+         }
+         
+         .debug-btn.copy:hover {
+             background: #0052cc;
+             transform: translateY(-1px);
+         }
+         
+         .debug-btn.clear {
+             background: #ff6b6b;
+             color: white;
+         }
+         
+         .debug-btn.clear:hover {
+             background: #ff5252;
+             transform: translateY(-1px);
+         }
+         
+         /* Retry Button */
+         .retry-btn {
+             background: #0066ff;
+             color: white;
+             border: none;
+             padding: 0.75rem 1.5rem;
+             border-radius: 8px;
+             cursor: pointer;
+             font-weight: 500;
+             display: inline-flex;
+             align-items: center;
+             gap: 0.5rem;
+             transition: all 0.3s ease;
+             margin-top: 0.5rem;
+         }
+         
+         .retry-btn:hover {
+             background: #0052cc;
+             transform: translateY(-1px);
+         }
+        
+        @media (max-width: 768px) {
+            .ip-input-group {
+                flex-direction: column;
+            }
+            
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .privacy-actions {
+                flex-direction: column;
+            }
+            
+            .maps-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .ip-data-grid,
+            .geo-data-grid,
+            .ip-rep-grid,
+            .client-props-grid,
+            .headers-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .neighborhood-grid {
+                grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            }
+        }
+    </style>
+</head>
+<body class="ip-checker-page">
+    <!-- Privacy Policy Overlay -->
+    <div id="privacyOverlay" class="privacy-overlay" style="display: none;">
+        <div class="privacy-modal">
+            <div class="privacy-header">
+                <h2><i class="fas fa-shield-alt"></i> Privacy Policy - IP Checker</h2>
+            </div>
+            <div class="privacy-content">
+                <p><strong>Important:</strong> This IP Checker tool collects and processes your IP address information to provide location and network details.</p>
+                
+                <h3>What We Collect:</h3>
+                <ul>
+                    <li>Your current IP address</li>
+                    <li>Geolocation data (country, city, coordinates)</li>
+                    <li>Network information (ISP, ASN)</li>
+                    <li>Browser and system information</li>
+                </ul>
+                
+                <h3>How We Use It:</h3>
+                <ul>
+                    <li>Display your IP location on the map</li>
+                    <li>Show network and ISP details</li>
+                    <li>Provide IP analysis tools</li>
+                    <li>Store search history locally (your device only)</li>
+                </ul>
+                
+                <h3>Data Protection:</h3>
+                <ul>
+                    <li>All data is processed locally in your browser</li>
+                    <li>No personal information is sent to our servers</li>
+                    <li>Search history is stored only on your device</li>
+                    <li>You can clear history anytime</li>
+                </ul>
+                
+                <p><strong>By accepting, you agree to allow this tool to access your IP address and related network information.</strong></p>
+            </div>
+                             <div class="privacy-actions">
+                     <button id="acceptPrivacy" class="privacy-btn accept">
+                         <i class="fas fa-check"></i> Accept & Continue
+                     </button>
+                     <button id="declinePrivacy" class="privacy-btn decline">
+                         <i class="fas fa-times"></i> Decline
+                     </button>
+                 </div>
+                 <div class="privacy-footer">
+                     <small>This tool will not collect any data until you accept the privacy policy.</small>
+                 </div>
+        </div>
+    </div>
+    
+    <!-- Enhanced Debug Log Modal -->
+    <div id="debugLogModal" class="debug-modal">
+        <div class="debug-modal-content" style="max-width: 95%; max-height: 90%; overflow-y: auto;">
+            <div class="debug-modal-header">
+                <h3><i class="fas fa-bug"></i> Comprehensive Debug Information</h3>
+                <button id="closeDebugModal" class="close-debug-btn">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="debug-modal-body">
+                <!-- Live State Monitoring -->
+                <div style="margin-bottom: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #007bff;">
+                    <h4 style="margin-top: 0; color: #007bff;">🔴 Live State Monitor</h4>
+                    <div id="liveStateMonitor" style="font-family: monospace; font-size: 11px; line-height: 1.4;">
+                        <div><strong>Timestamp:</strong> <span id="liveTimestamp">Loading...</span></div>
+                        <div><strong>Document Ready:</strong> <span id="liveReadyState">Loading...</span></div>
+                        <div><strong>Backend Status:</strong> <span id="liveBackendStatus">Loading...</span></div>
+                        <div><strong>Current IP:</strong> <span id="liveCurrentIP">Loading...</span></div>
+                        <div><strong>Last Searched IP:</strong> <span id="liveLastSearchedIP">Loading...</span></div>
+                        <div><strong>Results Displayed:</strong> <span id="liveResultsDisplayed">Loading...</span></div>
+                        <div><strong>Cache Status:</strong> <span id="liveCacheStatus">Loading...</span></div>
+                        <div><strong>Manual Search Performed:</strong> <span id="liveManualSearch">Loading...</span></div>
+                        <div><strong>Loading States:</strong> <span id="liveLoadingStates">Loading...</span></div>
+                        <div><strong>Active Elements:</strong> <span id="liveActiveElements">Loading...</span></div>
+                        <div><strong>Error Count:</strong> <span id="liveErrorCount">Loading...</span></div>
+                        <div><strong>Warning Count:</strong> <span id="liveWarningCount">Loading...</span></div>
+                        <div><strong>Info Count:</strong> <span id="liveInfoCount">Loading...</span></div>
+                        <div><strong>Total Logs:</strong> <span id="liveTotalLogs">Loading...</span></div>
+                    </div>
+                </div>
+                
+                <!-- Element States -->
+                <div style="margin-bottom: 20px; padding: 15px; background: #fff3cd; border-radius: 8px; border-left: 4px solid #ffc107;">
+                    <h4 style="margin-top: 0; color: #856404;">🔧 Element States</h4>
+                    <div id="elementStatesMonitor" style="font-family: monospace; font-size: 11px; line-height: 1.4; max-height: 200px; overflow-y: auto;">
+                        Loading element states...
+                    </div>
+                </div>
+                
+                <!-- Network Status -->
+                <div style="margin-bottom: 20px; padding: 15px; background: #d1ecf1; border-radius: 8px; border-left: 4px solid #17a2b8;">
+                    <h4 style="margin-top: 0; color: #0c5460;">🌐 Network Status</h4>
+                    <div id="networkStatusMonitor" style="font-family: monospace; font-size: 11px; line-height: 1.4;">
+                        <div><strong>Backend URL:</strong> <span id="liveBackendURL">http://localhost:3000/api/health</span></div>
+                        <div><strong>Last Request:</strong> <span id="liveLastRequest">None</span></div>
+                        <div><strong>Last Response:</strong> <span id="liveLastResponse">None</span></div>
+                        <div><strong>Response Time:</strong> <span id="liveResponseTime">N/A</span></div>
+                        <div><strong>Cache Hits:</strong> <span id="liveCacheHits">0</span></div>
+                        <div><strong>Cache Misses:</strong> <span id="liveCacheMisses">0</span></div>
+                        <div><strong>Rate Limit Status:</strong> <span id="liveRateLimit">Unknown</span></div>
+                    </div>
+                </div>
+                
+                <!-- Performance Metrics -->
+                <div style="margin-bottom: 20px; padding: 15px; background: #d4edda; border-radius: 8px; border-left: 4px solid #28a745;">
+                    <h4 style="margin-top: 0; color: #155724;">⚡ Performance Metrics</h4>
+                    <div id="performanceMonitor" style="font-family: monospace; font-size: 11px; line-height: 1.4;">
+                        <div><strong>Page Load Time:</strong> <span id="livePageLoadTime">Loading...</span></div>
+                        <div><strong>Memory Usage:</strong> <span id="liveMemoryUsage">Loading...</span></div>
+                        <div><strong>Active Timers:</strong> <span id="liveActiveTimers">Loading...</span></div>
+                        <div><strong>Event Listeners:</strong> <span id="liveEventListeners">Loading...</span></div>
+                        <div><strong>DOM Nodes:</strong> <span id="liveDOMNodes">Loading...</span></div>
+                        <div><strong>Scroll Position:</strong> <span id="liveScrollPosition">Loading...</span></div>
+                        <div><strong>Window Size:</strong> <span id="liveWindowSize">Loading...</span></div>
+                    </div>
+                </div>
+                
+                <!-- Debug Log Content -->
+                <div style="margin-bottom: 20px;">
+                    <h4 style="margin-top: 0; color: #6c757d;">📋 Debug Log</h4>
+                    <div style="margin-bottom: 10px;">
+                        <button onclick="clearDebugLog()" style="padding: 5px 10px; background: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px;">Clear Log</button>
+                        <button onclick="filterDebugLog('error')" style="margin-left: 5px; padding: 5px 10px; background: #fd7e14; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px;">Errors Only</button>
+                        <button onclick="filterDebugLog('warn')" style="margin-left: 5px; padding: 5px 10px; background: #ffc107; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px;">Warnings Only</button>
+                        <button onclick="filterDebugLog('all')" style="margin-left: 5px; padding: 5px 10px; background: #6c757d; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px;">Show All</button>
+                    </div>
+                    <div id="debugLogText" style="font-family: monospace; font-size: 11px; white-space: pre-wrap; background: #f8f9fa; padding: 15px; border-radius: 5px; max-height: 300px; overflow-y: auto; border: 1px solid #dee2e6;"></div>
+                </div>
+                
+                <!-- Copy Button -->
+                <div style="text-align: center; margin-top: 20px;">
+                    <button onclick="copyDebugLogToClipboard()" style="padding: 10px 20px; background: #28a745; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: bold;">
+                        📋 Copy Complete Debug Information to Clipboard
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Screen -->
+    <div id="loader" class="loader" style="display: none;">
+        <canvas></canvas>
+        <div class="spark-text">It All Starts With A Spark</div>
+        <div class="continue-text">Click Anywhere To Continue</div>
+    </div>
+
+    <!-- Website Content -->
+    <div id="website-content" class="website-content">
+        <!-- Navigation -->
+        <nav class="navbar">
+            <div class="nav-container">
+                <a href="index.html" class="nav-logo">
+                    <img src="ainsiders-logo.png" alt="A.Insiders Logo" class="logo-image" width="40" height="40">
+                    <span class="logo-text">A.I</span>
+                    <span class="logo-accent">NSIDERS</span>
+                </a>
+                <ul class="nav-menu">
+                    <li><a href="index.html" class="nav-link">Home</a></li>
+                    <li><a href="software.html" class="nav-link">Software</a></li>
+                    <li class="nav-dropdown">
+                        <div class="nav-link-container">
+                            <a href="about.html" class="nav-link">About</a>
+                            <span class="dropdown-arrow">▼</span>
+                        </div>
+                        <ul class="dropdown-menu">
+                            <li><a href="about.html" class="dropdown-link">About Company</a></li>
+                            <li><a href="blake-zimmerman.html" class="dropdown-link">Blake Zimmerman</a></li>
+                            <li><a href="babu-narayana.html" class="dropdown-link">Babu Narayana</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="contact.html" class="nav-link">Contact</a></li>
+                </ul>
+                <div class="nav-toggle">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
+        </nav>
+
+        <!-- AI Canvas for Background Effects -->
+        <canvas id="aiCanvas"></canvas>
+
+        <!-- Main Content -->
+        <div id="mainContent" style="display: block;">
+        <!-- Hero Section -->
+        <header class="ip-checker-hero">
+            <div class="container">
+                <h1>IP Location Checker</h1>
+                <p>Get detailed information about any IP address including geolocation, ISP details, and network information</p>
+                
+                            <!-- Status Indicator -->
+            <div id="statusIndicator" style="background: rgba(0, 102, 255, 0.1); border: 1px solid rgba(0, 102, 255, 0.3); padding: 0.5rem; border-radius: 8px; margin: 1rem 0; font-size: 0.875rem;">
+                <strong>Status:</strong> <span id="statusText">Loading...</span>
+            </div>
+            
+            <!-- Debug Status Panel -->
+            <div id="debugStatusPanel" style="background: rgba(255, 193, 7, 0.1); border: 1px solid rgba(255, 193, 7, 0.3); padding: 0.5rem; border-radius: 8px; margin: 1rem 0; font-size: 0.75rem; font-family: monospace;">
+                <strong>Debug Status:</strong>
+                <div id="debugStatusContent">
+                    <div>Backend: <span id="backendStatus">Checking...</span></div>
+                    <div>Last IP: <span id="lastIPStatus">None</span></div>
+                    <div>Results: <span id="resultsStatus">Not displayed</span></div>
+                    <div>Cache: <span id="cacheStatus">Unknown</span></div>
+                </div>
+                <div style="margin-top: 0.5rem;">
+                    <button id="refreshDebugBtn" onclick="ipChecker.refreshDebugStatus()" style="margin-right: 0.5rem; padding: 0.25rem 0.5rem; font-size: 0.7rem; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">Refresh Status</button>
+                    <button id="copyDebugBtn" onclick="ipChecker.copyDebugLog()" style="padding: 0.25rem 0.5rem; font-size: 0.7rem; background: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer;">Copy Debug Log</button>
+                </div>
+            </div>
+                
+                <div class="ip-input-section">
+                    <div class="ip-input-group">
+                        <input type="text" id="ipInput" class="ip-input" placeholder="Enter IP address (e.g., 8.8.8.8)" maxlength="45">
+                        <button id="checkIpBtn" class="check-ip-btn">
+                            <span>Check IP</span>
+                            <div class="loading-spinner" id="loadingSpinner"></div>
+                        </button>
+                    </div>
+                    
+                                         <div class="current-ip-info">
+                         <div class="current-ip-label">Your Current IP Address:</div>
+                         <div class="current-ip-address" id="currentIp">Loading...</div>
+                         <button id="copyCurrentIpBtn" class="copy-ip-btn" style="display: none;">
+                             <i class="fas fa-copy"></i>
+                             <span>Copy IP</span>
+                         </button>
+                         
+                         <!-- Debug Error Log Button -->
+                         <button id="debugLogBtn" class="debug-log-btn" style="display: none;">
+                             <i class="fas fa-bug"></i>
+                             <span>Show Debug Log</span>
+                         </button>
+
+                         <!-- Backend Status Indicator -->
+                         <div id="backendStatus" class="backend-status" style="display: none;">
+                             <i class="fas fa-server"></i>
+                             <span id="backendStatusText">Checking backend...</span>
+                         </div>
+
+                     </div>
+                    
+                    <div class="error-message" id="errorMessage"></div>
+                    <div class="success-message" id="successMessage"></div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Results Section -->
+        <section class="results-section" id="resultsSection" style="display: none;">
+            <div class="container">
+                <!-- Network Information Section -->
+                <div class="info-section">
+                    <div class="section-header">
+                        <h2 class="section-title">Network Information</h2>
+                        <p class="section-subtitle">Domain, ISP, and network details</p>
+                    </div>
+                    <div class="info-grid" id="networkGrid">
+                        <!-- Network details will be populated by JavaScript -->
+                    </div>
+                </div>
+
+                <!-- Geographical Data Section -->
+                <div class="info-section">
+                    <div class="section-header">
+                        <h2 class="section-title">Geographical Data</h2>
+                        <p class="section-subtitle">Location and mapping information</p>
+                    </div>
+                     <div class="maps-grid">
+                        <div class="map-container">
+                             <div class="map-title">Location</div>
+                            <div id="ipMap"></div>
+                            <div class="map-overlay">
+                                <i class="fas fa-map-marker-alt"></i>
+                                <span id="mapLocation">Location will appear here</span>
+                            </div>
+                        </div>
+                         <div class="map-container">
+                             <div class="map-title">Antipode</div>
+                             <div id="antipodeMap"></div>
+                             <div class="map-overlay">
+                                 <i class="fas fa-globe-americas"></i>
+                                 <span id="antipodeLocation">Antipode will appear here</span>
+                        </div>
+                    </div>
+                </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <div class="container">
+                <div class="footer-content">
+                    <div class="footer-section">
+                        <h4>Quick Links</h4>
+                        <ul>
+                            <li><a href="index.html">Home</a></li>
+                            <li><a href="about.html">About</a></li>
+                            <li><a href="software.html">Software</a></li>
+                            <li><a href="contact.html">Contact</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-section">
+                        <h4>Connect With Us</h4>
+                        <div class="social-links">
+                            <a href="https://www.linkedin.com/in/blake-zimmerman-a59575342/" class="social-link" title="LinkedIn" target="_blank" rel="noopener">
+                                <i class="fab fa-linkedin"></i>
+                                <span>LinkedIn</span>
+                            </a>
+                            <a href="https://github.com/AInsiders" class="social-link" title="GitHub" target="_blank" rel="noopener">
+                                <i class="fab fa-github"></i>
+                                <span>GitHub</span>
+                            </a>
+                            <a href="https://www.youtube.com/@A.Insiders01" class="social-link" title="YouTube" target="_blank" rel="noopener">
+                                <i class="fab fa-youtube"></i>
+                                <span>YouTube</span>
+                            </a>
+                            <a href="https://discord.gg/Y4kCtaBZFM" class="social-link" title="Discord" target="_blank" rel="noopener">
+                                <i class="fab fa-discord"></i>
+                                <span>Discord</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="footer-bottom">
+                    <p>&copy; 2024 A.Insiders Network. All rights reserved.</p>
+                    <div class="footer-links">
+                        <a href="privacy-policy.html">Privacy Policy</a>
+                        <a href="terms-of-service.html">Terms of Service</a>
+                        <a href="cookie-policy.html">Cookie Policy</a>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="brain-script.js"></script>
+    <script src="shared-loader.js"></script>
+    <script src="mobile-nav.js"></script>
+    <script src="sphere-loader.js"></script>
+    
+    <!-- Leaflet JS for maps -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <script>
+        class IPChecker {
+            constructor() {
+                window.debugLogger.info('=== IPCHECKER CONSTRUCTOR STARTED ===');
+                
+                this.map = null;
+                this.marker = null;
+                this.currentIP = null;
+                this.privacyAccepted = localStorage.getItem('ipCheckerPrivacyAccepted') === 'true';
+                
+                // Track initial states
+                window.debugLogger.setState('privacyAccepted', this.privacyAccepted);
+                window.debugLogger.setState('currentIP', this.currentIP);
+                window.debugLogger.setState('mapInitialized', false);
+                window.debugLogger.setState('markerInitialized', false);
+                window.debugLogger.setState('manualSearchPerformed', false);
+                window.debugLogger.setState('resultsDisplayed', false);
+                window.debugLogger.setState('lastSearchedIP', null);
+                
+                console.log('Privacy accepted:', this.privacyAccepted);
+                
+                // Initialize debug logging
+                window.debugLogger.info('IPChecker initialized');
+                window.debugLogger.info(`Privacy accepted: ${this.privacyAccepted}`);
+                window.debugLogger.info(`Current IP: ${this.currentIP}`);
+                window.debugLogger.info(`Map initialized: ${!!this.map}`);
+                window.debugLogger.info(`Marker initialized: ${!!this.marker}`);
+                
+                this.init();
+                window.debugLogger.info('=== IPCHECKER CONSTRUCTOR COMPLETED ===');
+            }
+
+            init() {
+                window.debugLogger.info('=== INIT METHOD STARTED ===');
+                window.debugLogger.setState('initStarted', true);
+                
+                if (!this.privacyAccepted) {
+                    window.debugLogger.info('Privacy not accepted, showing privacy policy');
+                    window.debugLogger.setLoading('privacyPolicy', true);
+                    this.showPrivacyPolicy();
+                } else {
+                    window.debugLogger.info('Privacy accepted, showing main content');
+                    window.debugLogger.setLoading('mainContent', true);
+                    this.showMainContent();
+                    window.debugLogger.setLoading('ipDetection', true);
+                    this.detectCurrentIP();
+                    window.debugLogger.setLoading('eventListeners', true);
+                    this.setupEventListeners();
+                }
+                
+                window.debugLogger.setState('initCompleted', true);
+                window.debugLogger.info('=== INIT METHOD COMPLETED ===');
+            }
+
+            showPrivacyPolicy() {
+                window.debugLogger.info('=== SHOWING PRIVACY POLICY ===');
+                window.debugLogger.setLoading('privacyPolicy', true);
+                
+                const privacyOverlay = document.getElementById('privacyOverlay');
+                if (privacyOverlay) {
+                    privacyOverlay.style.display = 'flex';
+                    window.debugLogger.trackVisibility('privacyOverlay', true);
+                    window.debugLogger.trackElementState('privacyOverlay', 'display: flex');
+                } else {
+                    window.debugLogger.error('Privacy overlay element not found!');
+                }
+                
+                document.body.style.overflow = 'hidden';
+                window.debugLogger.trackElementState('body', 'overflow: hidden');
+                
+                // Track button event listeners
+                const acceptBtn = document.getElementById('acceptPrivacy');
+                const declineBtn = document.getElementById('declinePrivacy');
+                
+                if (acceptBtn) {
+                    acceptBtn.addEventListener('click', () => {
+                        window.debugLogger.trackClick('acceptPrivacy', 'Accept privacy policy clicked');
+                        this.acceptPrivacyPolicy();
+                    });
+                    window.debugLogger.info('Accept privacy button event listener added');
+                } else {
+                    window.debugLogger.error('Accept privacy button not found!');
+                }
+                
+                if (declineBtn) {
+                    declineBtn.addEventListener('click', () => {
+                        window.debugLogger.trackClick('declinePrivacy', 'Decline privacy policy clicked');
+                        this.declinePrivacyPolicy();
+                    });
+                    window.debugLogger.info('Decline privacy button event listener added');
+                } else {
+                    window.debugLogger.error('Decline privacy button not found!');
+                }
+                
+                window.debugLogger.setLoading('privacyPolicy', false);
+                window.debugLogger.info('=== PRIVACY POLICY SHOWN ===');
+            }
+
+            acceptPrivacyPolicy() {
+                window.debugLogger.info('=== ACCEPTING PRIVACY POLICY ===');
+                window.debugLogger.trackClick('acceptPrivacy', 'Privacy policy accepted');
+                
+                localStorage.setItem('ipCheckerPrivacyAccepted', 'true');
+                window.debugLogger.info('Privacy acceptance saved to localStorage');
+                
+                this.privacyAccepted = true;
+                window.debugLogger.setState('privacyAccepted', true);
+                
+                window.debugLogger.setLoading('hidePrivacy', true);
+                this.hidePrivacyPolicy();
+                
+                window.debugLogger.setLoading('showMainContent', true);
+                this.showMainContent();
+                
+                window.debugLogger.setLoading('connectivityTest', true);
+                // Test basic connectivity first
+                this.testConnectivity().then(() => {
+                    window.debugLogger.setLoading('connectivityTest', false);
+                    window.debugLogger.setLoading('ipDetection', true);
+                    this.detectCurrentIP();
+                }).catch((error) => {
+                    window.debugLogger.setLoading('connectivityTest', false);
+                    window.debugLogger.error(`Connectivity test failed: ${error.message}`);
+                    console.error('Connectivity test failed:', error);
+                    this.showConnectivityError();
+                });
+                
+                window.debugLogger.setLoading('eventListeners', true);
+                this.setupEventListeners();
+                
+                window.debugLogger.info('=== PRIVACY POLICY ACCEPTED ===');
+            }
+            
+            async testConnectivity() {
+                try {
+                    window.debugLogger.info('Testing basic connectivity...');
+                    console.log('Testing basic connectivity...');
+                    
+                    const testServices = [
+                        'https://httpbin.org/get',
+                        'https://jsonplaceholder.typicode.com/posts/1',
+                        'https://api.github.com/zen'
+                    ];
+                    
+                    for (const service of testServices) {
+                        try {
+                            window.debugLogger.info(`Testing connectivity with: ${service}`);
+                            const response = await fetch(service, {
+                                method: 'GET',
+                                headers: {
+                                    'Accept': 'application/json'
+                                }
+                            });
+                            
+                            if (response.ok) {
+                                window.debugLogger.info(`Connectivity test passed with: ${service}`);
+                                console.log('Connectivity test passed');
+                                return true;
+                            }
+                        } catch (error) {
+                            window.debugLogger.warn(`Connectivity test failed with ${service}: ${error.message}`);
+                            continue;
+                        }
+                    }
+                    
+                    throw new Error('All connectivity tests failed');
+                } catch (error) {
+                    window.debugLogger.error(`Connectivity test failed: ${error.message}`);
+                    console.error('Connectivity test failed:', error);
+                    throw error;
+                }
+            }
+
+                            async testBackendConnectivity() {
+            try {
+                window.debugLogger.info(`=== TESTBACKENDCONNECTIVITY METHOD CALLED ===`);
+                window.debugLogger.info(`Timestamp: ${new Date().toISOString()}`);
+                window.debugLogger.info(`Method: GET`);
+                window.debugLogger.info(`URL: http://localhost:3000/api/health`);
+                window.debugLogger.info(`Mode: cors`);
+                window.debugLogger.info(`Headers: {"Accept": "application/json"}`);
+                
+                // Update status indicator
+                const statusText = document.getElementById('statusText');
+                window.debugLogger.info(`Status text element found: ${!!statusText}`);
+                if (statusText) {
+                    statusText.textContent = 'Testing backend connection...';
+                    window.debugLogger.info(`Status text updated to: "Testing backend connection..."`);
+                }
+                
+                const healthUrl = 'http://localhost:3000/api/health';
+                window.debugLogger.info(`Health URL: "${healthUrl}"`);
+                window.debugLogger.info(`URL validation: ${this.isValidUrl(healthUrl) ? 'VALID' : 'INVALID'}`);
+                
+                const fetchOptions = {
+                    method: 'GET',
+                    mode: 'cors',
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                };
+                window.debugLogger.info(`Fetch options: ${JSON.stringify(fetchOptions, null, 2)}`);
+                
+                window.debugLogger.info(`Initiating health check fetch request`);
+                const response = await fetch(healthUrl, fetchOptions);
+                window.debugLogger.info(`Health check fetch completed`);
+                
+                window.debugLogger.info(`Response object type: ${typeof response}`);
+                window.debugLogger.info(`Response constructor: ${response.constructor.name}`);
+                window.debugLogger.info(`Response status: ${response.status}`);
+                window.debugLogger.info(`Response status text: "${response.statusText}"`);
+                window.debugLogger.info(`Response ok: ${response.ok}`);
+                window.debugLogger.info(`Response type: ${response.type}`);
+                window.debugLogger.info(`Response url: ${response.url}`);
+                window.debugLogger.info(`Response redirected: ${response.redirected}`);
+                
+                // Log all response headers
+                window.debugLogger.info(`=== HEALTH CHECK RESPONSE HEADERS ===`);
+                const headerEntries = Array.from(response.headers.entries());
+                headerEntries.forEach(([key, value]) => {
+                    window.debugLogger.info(`Header: ${key} = "${value}"`);
+                });
+                window.debugLogger.info(`Total headers: ${headerEntries.length}`);
+                
+                if (response.ok) {
+                    window.debugLogger.info(`Response is ok, parsing JSON`);
+                    const data = await response.json();
+                    window.debugLogger.info(`JSON parsing completed`);
+                    window.debugLogger.info(`Health data type: ${typeof data}`);
+                    window.debugLogger.info(`Health data constructor: ${data.constructor.name}`);
+                    window.debugLogger.info(`Health data keys: ${Object.keys(data).join(', ')}`);
+                    window.debugLogger.info(`Health data: ${JSON.stringify(data, null, 2)}`);
+                    
+                    window.debugLogger.info(`Backend health check successful: ${data.status}`);
+                    window.debugLogger.info(`Cache stats: ${data.cacheStats.keys} keys, Rate limit: ${data.rateLimit.perMinute}/min`);
+                    
+                    // Update status indicator
+                    if (statusText) {
+                        statusText.textContent = 'Backend connected ✓';
+                        window.debugLogger.info(`Status text updated to: "Backend connected ✓"`);
+                    }
+                    
+                    // Update debug status
+                    this.updateDebugStatus('backend', 'Connected ✓');
+                    window.debugLogger.info(`Debug status updated: backend=Connected ✓`);
+                    
+                    window.debugLogger.info(`=== TESTBACKENDCONNECTIVITY METHOD COMPLETED SUCCESSFULLY ===`);
+                    return true;
+                } else {
+                    window.debugLogger.error(`Response not ok: HTTP ${response.status} ${response.statusText}`);
+                    window.debugLogger.error(`Response status code: ${response.status}`);
+                    window.debugLogger.error(`Response status text: "${response.statusText}"`);
+                    
+                    // Update status indicator
+                    if (statusText) {
+                        statusText.textContent = `Backend error: ${response.status}`;
+                        window.debugLogger.info(`Status text updated to error: "Backend error: ${response.status}"`);
+                    }
+                    
+                    // Update debug status
+                    this.updateDebugStatus('backend', `Error: ${response.status}`);
+                    window.debugLogger.info(`Debug status updated: backend=Error: ${response.status}`);
+                    
+                    window.debugLogger.error(`=== TESTBACKENDCONNECTIVITY METHOD FAILED - HTTP ERROR ===`);
+                    return false;
+                }
+            } catch (error) {
+                window.debugLogger.error(`=== TESTBACKENDCONNECTIVITY METHOD FAILED - EXCEPTION ===`);
+                window.debugLogger.error(`Error type: ${error.constructor.name}`);
+                window.debugLogger.error(`Error name: ${error.name}`);
+                window.debugLogger.error(`Error message: "${error.message}"`);
+                window.debugLogger.error(`Error stack: ${error.stack}`);
+                window.debugLogger.error(`Error cause: ${error.cause || 'undefined'}`);
+                window.debugLogger.error(`Error toString(): ${error.toString()}`);
+                window.debugLogger.error(`Error JSON: ${JSON.stringify(error, Object.getOwnPropertyNames(error), 2)}`);
+                
+                // Update status indicator
+                const statusText = document.getElementById('statusText');
+                if (statusText) {
+                    statusText.textContent = `Connection failed: ${error.message}`;
+                    window.debugLogger.info(`Status text updated to error: "Connection failed: ${error.message}"`);
+                }
+                
+                // Update debug status
+                this.updateDebugStatus('backend', `Failed: ${error.message}`);
+                window.debugLogger.info(`Debug status updated: backend=Failed: ${error.message}`);
+                
+                window.debugLogger.error(`=== TESTBACKENDCONNECTIVITY METHOD EXITING WITH ERROR ===`);
+                return false;
+            }
+        }
+
+                    async updateBackendStatus() {
+            const statusDiv = document.getElementById('backendStatus');
+            const statusText = document.getElementById('backendStatusText');
+            
+            if (!statusDiv || !statusText) return;
+            
+            statusDiv.style.display = 'flex';
+            statusDiv.className = 'backend-status checking';
+            statusText.textContent = 'Checking backend...';
+            
+            try {
+                const isConnected = await this.testBackendConnectivity();
+                if (isConnected) {
+                    statusDiv.className = 'backend-status connected';
+                    statusText.textContent = 'Backend connected ✓';
+                } else {
+                    statusDiv.className = 'backend-status disconnected';
+                    statusText.textContent = 'Backend disconnected ✗';
+                }
+            } catch (error) {
+                statusDiv.className = 'backend-status disconnected';
+                statusText.textContent = 'Backend error ✗';
+            }
+        }
+        
+        updateDebugStatus(type, value) {
+            const element = document.getElementById(type + 'Status');
+            if (element) {
+                element.textContent = value;
+                window.debugLogger.info(`Debug status updated: ${type} = ${value}`);
+            }
+        }
+        
+        isValidUrl(string) {
+            try {
+                new URL(string);
+                return true;
+            } catch (_) {
+                return false;
+            }
+        }
+        
+        async refreshDebugStatus() {
+            window.debugLogger.info('Refreshing debug status...');
+            
+            // Update backend status
+            this.updateDebugStatus('backend', 'Checking...');
+            const isConnected = await this.testBackendConnectivity();
+            this.updateDebugStatus('backend', isConnected ? 'Connected ✓' : 'Disconnected ✗');
+            
+            // Update other statuses
+            const resultsSection = document.getElementById('resultsSection');
+            this.updateDebugStatus('results', resultsSection && resultsSection.style.display === 'block' ? 'Displayed ✓' : 'Not displayed');
+            
+            window.debugLogger.info('Debug status refreshed');
+        }
+        
+        copyDebugLog() {
+            window.debugLogger.info('Copying comprehensive debug log to clipboard...');
+            
+            const timestamp = new Date().toISOString();
+            const userAgent = navigator.userAgent;
+            const currentUrl = window.location.href;
+            const documentReadyState = document.readyState;
+            
+            // Get all debug logs
+            const logs = window.debugLogger.getLogs();
+            const states = window.debugLogger.getStates();
+            const loadingStates = window.debugLogger.getLoadingStates();
+            const clicks = window.debugLogger.getClicks();
+            
+            // Get current element states
+            const elementStates = {};
+            const elementsToCheck = [
+                'mainContent', 'loader', 'ipInput', 'checkIpBtn', 'loadingSpinner', 
+                'currentIp', 'copyCurrentIpBtn', 'debugLogBtn', 'resultsSection',
+                'networkGrid', 'ipMap', 'antipodeMap', 'statusText', 'backendStatus',
+                'lastIPStatus', 'resultsStatus', 'cacheStatus'
+            ];
+            
+            elementsToCheck.forEach(elementId => {
+                const element = document.getElementById(elementId);
+                if (element) {
+                    elementStates[elementId] = {
+                        exists: true,
+                        display: element.style.display,
+                        visible: element.offsetParent !== null,
+                        disabled: element.disabled || false,
+                        value: element.value || null,
+                        textContent: element.textContent || null,
+                        innerHTML: element.innerHTML ? element.innerHTML.substring(0, 200) + '...' : null
+                    };
+                } else {
+                    elementStates[elementId] = { exists: false };
+                }
+            });
+            
+            // Get backend status
+            const backendStatus = {
+                url: 'http://localhost:3000/api/health',
+                timestamp: timestamp
+            };
+            
+            // Create comprehensive debug report
+            const debugReport = {
+                timestamp: timestamp,
+                userAgent: userAgent,
+                currentUrl: currentUrl,
+                documentReadyState: documentReadyState,
+                logs: logs,
+                states: states,
+                loadingStates: loadingStates,
+                clicks: clicks,
+                elementStates: elementStates,
+                backendStatus: backendStatus,
+                debugStatus: {
+                    backend: document.getElementById('backendStatus')?.textContent || 'Unknown',
+                    lastIP: document.getElementById('lastIPStatus')?.textContent || 'Unknown',
+                    results: document.getElementById('resultsStatus')?.textContent || 'Unknown',
+                    cache: document.getElementById('cacheStatus')?.textContent || 'Unknown'
+                }
+            };
+            
+            // Convert to formatted string
+            const debugString = `=== COMPREHENSIVE DEBUG LOG ===
+Timestamp: ${timestamp}
+User Agent: ${userAgent}
+Current URL: ${currentUrl}
+Document Ready State: ${documentReadyState}
+
+=== DEBUG STATUS ===
+Backend: ${debugReport.debugStatus.backend}
+Last IP: ${debugReport.debugStatus.lastIP}
+Results: ${debugReport.debugStatus.results}
+Cache: ${debugReport.debugStatus.cache}
+
+=== ELEMENT STATES ===
+${JSON.stringify(elementStates, null, 2)}
+
+=== DEBUG LOGS ===
+${logs.join('\n')}
+
+=== STATES ===
+${JSON.stringify(states, null, 2)}
+
+=== LOADING STATES ===
+${JSON.stringify(loadingStates, null, 2)}
+
+=== CLICKS ===
+${JSON.stringify(clicks, null, 2)}
+
+=== FULL DEBUG REPORT (JSON) ===
+${JSON.stringify(debugReport, null, 2)}
+
+=== END DEBUG LOG ===`;
+
+            // Copy to clipboard
+            try {
+                navigator.clipboard.writeText(debugString).then(() => {
+                    window.debugLogger.info('Debug log copied to clipboard successfully');
+                    this.showSuccess('Debug log copied to clipboard!');
+                }).catch(error => {
+                    window.debugLogger.error(`Failed to copy to clipboard: ${error.message}`);
+                    this.showError('Failed to copy to clipboard. Please try again.');
+                });
+            } catch (error) {
+                window.debugLogger.error(`Clipboard API not available: ${error.message}`);
+                this.showError('Clipboard not available. Please copy manually.');
+            }
+        }
+        
+        updateLiveStateMonitor() {
+            const timestamp = new Date().toISOString();
+            
+            // Update live state monitor
+            document.getElementById('liveTimestamp').textContent = timestamp;
+            document.getElementById('liveReadyState').textContent = document.readyState;
+            document.getElementById('liveBackendStatus').textContent = document.getElementById('backendStatus')?.textContent || 'Unknown';
+            document.getElementById('liveCurrentIP').textContent = document.getElementById('currentIp')?.textContent || 'None';
+            document.getElementById('liveLastSearchedIP').textContent = window.debugLogger.getStates().lastSearchedIP || 'None';
+            document.getElementById('liveResultsDisplayed').textContent = window.debugLogger.getStates().resultsDisplayed ? 'Yes' : 'No';
+            document.getElementById('liveCacheStatus').textContent = document.getElementById('cacheStatus')?.textContent || 'Unknown';
+            document.getElementById('liveManualSearch').textContent = window.debugLogger.getStates().manualSearchPerformed ? 'Yes' : 'No';
+            
+            // Update loading states
+            const loadingStates = window.debugLogger.getLoadingStates();
+            const loadingStatesText = Object.keys(loadingStates).filter(key => loadingStates[key]).join(', ') || 'None';
+            document.getElementById('liveLoadingStates').textContent = loadingStatesText;
+            
+            // Update active elements
+            const activeElements = [];
+            const elementsToCheck = ['mainContent', 'ipInput', 'checkIpBtn', 'resultsSection'];
+            elementsToCheck.forEach(id => {
+                const element = document.getElementById(id);
+                if (element && element.offsetParent !== null) {
+                    activeElements.push(id);
+                }
+            });
+            document.getElementById('liveActiveElements').textContent = activeElements.join(', ') || 'None';
+            
+            // Update log counts
+            const logs = window.debugLogger.getLogs();
+            const errorCount = logs.filter(log => log.includes('ERROR')).length;
+            const warningCount = logs.filter(log => log.includes('WARN')).length;
+            const infoCount = logs.filter(log => log.includes('INFO')).length;
+            
+            document.getElementById('liveErrorCount').textContent = errorCount;
+            document.getElementById('liveWarningCount').textContent = warningCount;
+            document.getElementById('liveInfoCount').textContent = infoCount;
+            document.getElementById('liveTotalLogs').textContent = logs.length;
+        }
+        
+        updateElementStatesMonitor() {
+            const elementStates = {};
+            const elementsToCheck = [
+                'mainContent', 'loader', 'ipInput', 'checkIpBtn', 'loadingSpinner', 
+                'currentIp', 'copyCurrentIpBtn', 'debugLogBtn', 'resultsSection',
+                'networkGrid', 'ipMap', 'antipodeMap', 'statusText', 'backendStatus',
+                'lastIPStatus', 'resultsStatus', 'cacheStatus'
+            ];
+            
+            elementsToCheck.forEach(elementId => {
+                const element = document.getElementById(elementId);
+                if (element) {
+                    elementStates[elementId] = {
+                        exists: true,
+                        display: element.style.display,
+                        visible: element.offsetParent !== null,
+                        disabled: element.disabled || false,
+                        value: element.value || null,
+                        textContent: element.textContent ? element.textContent.substring(0, 50) + '...' : null
+                    };
+                } else {
+                    elementStates[elementId] = { exists: false };
+                }
+            });
+            
+            const elementStatesDiv = document.getElementById('elementStatesMonitor');
+            if (elementStatesDiv) {
+                elementStatesDiv.innerHTML = Object.entries(elementStates).map(([id, state]) => {
+                    const status = state.exists ? 
+                        `✅ ${state.visible ? 'Visible' : 'Hidden'} (${state.display})` : 
+                        '❌ Not Found';
+                    return `<div><strong>${id}:</strong> ${status}</div>`;
+                }).join('');
+            }
+        }
+        
+        updatePerformanceMonitor() {
+            // Page load time
+            const pageLoadTime = performance.timing.loadEventEnd - performance.timing.navigationStart;
+            document.getElementById('livePageLoadTime').textContent = `${pageLoadTime}ms`;
+            
+            // Memory usage (if available)
+            if (performance.memory) {
+                const memoryMB = Math.round(performance.memory.usedJSHeapSize / 1024 / 1024);
+                document.getElementById('liveMemoryUsage').textContent = `${memoryMB}MB`;
+            } else {
+                document.getElementById('liveMemoryUsage').textContent = 'Not Available';
+            }
+            
+            // Active timers (approximate)
+            document.getElementById('liveActiveTimers').textContent = 'Monitoring...';
+            
+            // Event listeners (approximate)
+            document.getElementById('liveEventListeners').textContent = 'Monitoring...';
+            
+            // DOM nodes
+            const domNodes = document.querySelectorAll('*').length;
+            document.getElementById('liveDOMNodes').textContent = domNodes;
+            
+            // Scroll position
+            const scrollPos = `${window.scrollX}, ${window.scrollY}`;
+            document.getElementById('liveScrollPosition').textContent = scrollPos;
+            
+            // Window size
+            const windowSize = `${window.innerWidth}x${window.innerHeight}`;
+            document.getElementById('liveWindowSize').textContent = windowSize;
+        }
+        
+        startLiveMonitoring() {
+            // Update monitors every 2 seconds
+            setInterval(() => {
+                this.updateLiveStateMonitor();
+                this.updateElementStatesMonitor();
+                this.updatePerformanceMonitor();
+            }, 2000);
+            
+            // Initial update
+            this.updateLiveStateMonitor();
+            this.updateElementStatesMonitor();
+            this.updatePerformanceMonitor();
+        }
+            
+            showConnectivityError() {
+                const errorDiv = document.createElement('div');
+                errorDiv.style.cssText = 'color: #ff6b6b; margin-top: 10px; text-align: center; padding: 1rem; background: rgba(255, 107, 107, 0.1); border-radius: 8px;';
+                errorDiv.innerHTML = `
+                    <strong>Network Connectivity Issue</strong><br>
+                    <small>Unable to connect to external services.</small><br>
+                    <small>Please check your internet connection and firewall settings.</small>
+                `;
+                document.getElementById('currentIp').parentNode.appendChild(errorDiv);
+            }
+            
+            // Debug Log Methods
+            showDebugLog() {
+                window.debugLogger.info('Debug log opened');
+                
+                // Update live monitors
+                this.updateLiveStateMonitor();
+                this.updateElementStatesMonitor();
+                this.updatePerformanceMonitor();
+                
+                // Get all logs
+                const logs = window.debugLogger.getLogs();
+                const logText = document.getElementById('debugLogText');
+                if (logText) {
+                    logText.textContent = logs.join('\n');
+                }
+                
+                // Show modal
+                document.getElementById('debugLogModal').style.display = 'block';
+                document.body.style.overflow = 'hidden';
+            }
+            
+            hideDebugLog() {
+                document.getElementById('debugLogModal').style.display = 'none';
+                document.body.style.overflow = 'auto';
+                window.debugLogger.info('Debug log closed');
+            }
+            
+            // Global functions for debug modal
+            clearDebugLog() {
+                window.debugLogger.clearLogs();
+                const logText = document.getElementById('debugLogText');
+                if (logText) {
+                    logText.textContent = '';
+                }
+                window.debugLogger.info('Debug log cleared');
+            }
+            
+            filterDebugLog(filter) {
+                const logs = window.debugLogger.getLogs();
+                const logText = document.getElementById('debugLogText');
+                
+                if (logText) {
+                    let filteredLogs = logs;
+                    if (filter === 'error') {
+                        filteredLogs = logs.filter(log => log.includes('ERROR'));
+                    } else if (filter === 'warn') {
+                        filteredLogs = logs.filter(log => log.includes('WARN'));
+                    }
+                    // 'all' shows all logs
+                    
+                    logText.textContent = filteredLogs.join('\n');
+                }
+            }
+            
+            copyDebugLogToClipboard() {
+                this.copyDebugLog();
+            }
+            
+            async copyDebugLog() {
+                const logText = document.getElementById('debugLogText').value;
+                try {
+                    await navigator.clipboard.writeText(logText);
+                    window.debugLogger.info('Debug log copied to clipboard');
+                    this.showSuccess('Debug log copied to clipboard!');
+                } catch (err) {
+                    // Fallback for older browsers
+                    const textArea = document.createElement('textarea');
+                    textArea.value = logText;
+                    document.body.appendChild(textArea);
+                    textArea.select();
+                    try {
+                        document.execCommand('copy');
+                        window.debugLogger.info('Debug log copied to clipboard (fallback)');
+                        this.showSuccess('Debug log copied to clipboard!');
+                    } catch (fallbackErr) {
+                        window.debugLogger.error('Failed to copy debug log');
+                        this.showError('Failed to copy debug log');
+                    }
+                    document.body.removeChild(textArea);
+                }
+            }
+            
+            clearDebugLog() {
+                window.debugLogger.clear();
+                document.getElementById('debugLogText').value = '';
+                window.debugLogger.info('Debug log cleared');
+                this.showSuccess('Debug log cleared!');
+            }
+
+            declinePrivacyPolicy() {
+                alert('You must accept the privacy policy to use this tool.');
+                this.showPrivacyPolicy();
+            }
+            
+
+
+            hidePrivacyPolicy() {
+                document.getElementById('privacyOverlay').style.display = 'none';
+                document.body.style.overflow = 'auto';
+            }
+
+            showMainContent() {
+                window.debugLogger.info('=== SHOWING MAIN CONTENT ===');
+                window.debugLogger.setLoading('showMainContent', true);
+                
+                const mainContent = document.getElementById('mainContent');
+                if (mainContent) {
+                    mainContent.style.display = 'block';
+                    window.debugLogger.trackVisibility('mainContent', true);
+                    window.debugLogger.trackElementState('mainContent', 'display: block');
+                    window.debugLogger.info('Main content element found and displayed');
+                } else {
+                    window.debugLogger.error('Main content element not found!');
+                }
+                
+                // Track all visible elements
+                const elementsToTrack = [
+                    'ipInput', 'checkIpBtn', 'loadingSpinner', 'currentIp', 
+                    'copyCurrentIpBtn', 'debugLogBtn', 'resultsSection'
+                ];
+                
+                elementsToTrack.forEach(elementId => {
+                    const element = document.getElementById(elementId);
+                    if (element) {
+                        const isVisible = element.style.display !== 'none' && 
+                                         element.offsetParent !== null;
+                        window.debugLogger.trackVisibility(elementId, isVisible);
+                        window.debugLogger.trackElementState(elementId, `display: ${element.style.display}, visible: ${isVisible}`);
+                    } else {
+                        window.debugLogger.warn(`Element ${elementId} not found`);
+                    }
+                });
+                
+                        // Initialize debug status panel
+        this.updateDebugStatus('backend', 'Checking...');
+        this.updateDebugStatus('lastIP', 'None');
+        this.updateDebugStatus('results', 'Not displayed');
+        this.updateDebugStatus('cache', 'Unknown');
+        
+        // Start live monitoring
+        this.startLiveMonitoring();
+        
+        // Update backend status
+        this.updateBackendStatus();
+                
+                window.debugLogger.setLoading('showMainContent', false);
+                window.debugLogger.info('=== MAIN CONTENT SHOWN ===');
+             }
+
+            async detectCurrentIP() {
+                try {
+                    window.debugLogger.info('Starting IP detection...');
+                    console.log('Detecting current IP...');
+                    
+                    // Try multiple IP detection services with timeout
+                    const ipServices = [
+                        'https://api.ipify.org?format=json',
+                        'https://httpbin.org/ip',
+                        'https://api.myip.com',
+                        'https://ipapi.co/json/'
+                    ];
+                    
+                    let currentIP = null;
+                    let lastError = null;
+                    
+                    for (const service of ipServices) {
+                        try {
+                            window.debugLogger.info(`Trying IP service: ${service}`);
+                            
+                            // Create a timeout promise
+                            const timeoutPromise = new Promise((_, reject) => {
+                                setTimeout(() => reject(new Error('Request timeout')), 10000);
+                            });
+                            
+                            // Create the fetch promise
+                            const fetchPromise = fetch(service, {
+                                method: 'GET',
+                                headers: {
+                                    'Accept': 'application/json'
+                                }
+                            });
+                            
+                            // Race between fetch and timeout
+                            const response = await Promise.race([fetchPromise, timeoutPromise]);
+                            
+                            if (!response.ok) {
+                                const errorMsg = `HTTP ${response.status}: ${response.statusText}`;
+                                window.debugLogger.warn(`Service ${service} failed: ${errorMsg}`);
+                                lastError = new Error(errorMsg);
+                                continue;
+                            }
+                            
+                            const data = await response.json();
+                            
+                            // Extract IP from different response formats
+                            if (data.ip) {
+                                currentIP = data.ip;
+                            } else if (data.origin) {
+                                currentIP = data.origin;
+                            } else if (data.query) {
+                                currentIP = data.query;
+                            }
+                            
+                            if (currentIP) {
+                                window.debugLogger.info(`IP detected from ${service}: ${currentIP}`);
+                                break;
+                            } else {
+                                window.debugLogger.warn(`Service ${service} returned no IP address`);
+                                lastError = new Error('No IP address in response');
+                            }
+                            
+                        } catch (serviceError) {
+                            window.debugLogger.warn(`Service ${service} failed: ${serviceError.message}`);
+                            lastError = serviceError;
+                            continue;
+                        }
+                    }
+                    
+                    if (!currentIP) {
+                        const errorMsg = lastError ? lastError.message : 'All IP detection services failed';
+                        window.debugLogger.error(`All IP detection services failed. Last error: ${errorMsg}`);
+                        throw new Error(errorMsg);
+                    }
+                    
+                    this.currentIP = currentIP;
+                    document.getElementById('currentIp').textContent = this.currentIP;
+                    
+                    const copyCurrentIpBtn = document.getElementById('copyCurrentIpBtn');
+                    copyCurrentIpBtn.style.display = 'flex';
+                    
+                    // Show debug log button
+                    const debugLogBtn = document.getElementById('debugLogBtn');
+                    debugLogBtn.style.display = 'flex';
+                    
+                    window.debugLogger.info(`Current IP detected: ${this.currentIP}`);
+                    console.log('Current IP detected:', this.currentIP);
+                    
+                    // Don't automatically load current IP details - only show current IP
+                    window.debugLogger.info('Current IP detection completed - no automatic details loading');
+                } catch (error) {
+                    window.debugLogger.error(`Failed to detect current IP: ${error.message}`);
+                    console.error('Failed to detect current IP:', error);
+                    document.getElementById('currentIp').textContent = 'Unable to load';
+                    
+                    // Show debug log button on error
+                    const debugLogBtn = document.getElementById('debugLogBtn');
+                    debugLogBtn.style.display = 'flex';
+                    
+                    // Show user-friendly error message with retry button
+                    const errorDiv = document.createElement('div');
+                    errorDiv.style.cssText = 'color: #ffa500; margin-top: 10px; text-align: center; padding: 1rem; background: rgba(255, 165, 0, 0.1); border-radius: 8px;';
+                    errorDiv.innerHTML = `
+                        <strong>Limited Information Available</strong><br>
+                        <small>Network restrictions prevent access to external IP databases.</small><br>
+                        <small>Basic IP information and client data will be displayed.</small>
+                        <br><br>
+                        <button id="retryIpDetection" class="retry-btn">
+                            <i class="fas fa-refresh"></i> Retry IP Detection
+                        </button>
+                    `;
+                    document.getElementById('currentIp').parentNode.appendChild(errorDiv);
+                    
+                    // Add retry button functionality
+                    document.getElementById('retryIpDetection').addEventListener('click', () => {
+                        window.debugLogger.info('User clicked retry IP detection');
+                        errorDiv.remove();
+                        this.detectCurrentIP();
+                    });
+                }
+            }
+
+            async loadCurrentIPDetails() {
+                if (!this.currentIP) {
+                    console.error('No current IP available');
+                    return;
+                }
+                
+                console.log('Loading details for current IP:', this.currentIP);
+                
+                try {
+                    const data = await this.getIPInfo(this.currentIP);
+                    console.log('Successfully got IP details:', data);
+                    this.displayResults(data);
+                } catch (error) {
+                    console.error('Failed to load current IP details:', error);
+                    
+                    // Show user-friendly error message
+                    const errorDiv = document.createElement('div');
+                    errorDiv.style.cssText = 'color: #ff6b6b; margin-top: 10px; text-align: center; padding: 1rem; background: rgba(255, 107, 107, 0.1); border-radius: 8px;';
+                    errorDiv.innerHTML = `
+                        <strong>Failed to retrieve IP information</strong><br>
+                        <small>Error: ${error.message}</small><br>
+                        <small>Please try again or check your internet connection.</small>
+                    `;
+                    
+                    const currentIpContainer = document.getElementById('currentIp').parentNode;
+                    currentIpContainer.appendChild(errorDiv);
+                }
+            }
+
+
+
+                    async getIPInfo(ip) {
+            try {
+                window.debugLogger.info(`=== GETIPINFO METHOD CALLED ===`);
+                window.debugLogger.info(`Input IP: "${ip}" (type: ${typeof ip}, length: ${ip ? ip.length : 0})`);
+                window.debugLogger.info(`Timestamp: ${new Date().toISOString()}`);
+                window.debugLogger.info(`User Agent: ${navigator.userAgent}`);
+                window.debugLogger.info(`Current URL: ${window.location.href}`);
+                window.debugLogger.info(`Document Ready State: ${document.readyState}`);
+                console.log(`[DEBUG] getIPInfo called with IP: "${ip}"`);
+                
+                // Update status indicator
+                const statusText = document.getElementById('statusText');
+                window.debugLogger.info(`Status text element found: ${!!statusText}`);
+                if (statusText) {
+                    statusText.textContent = `Fetching data for ${ip}...`;
+                    window.debugLogger.info(`Status text updated to: "Fetching data for ${ip}..."`);
+                }
+                
+                // Use the new backend API with caching and fallback
+                const backendUrl = 'http://localhost:3000/api/ip/' + ip;
+                window.debugLogger.info(`Backend URL constructed: "${backendUrl}"`);
+                window.debugLogger.info(`URL validation: ${this.isValidUrl(backendUrl) ? 'VALID' : 'INVALID'}`);
+                
+                // Create a timeout promise
+                const timeoutMs = 15000;
+                window.debugLogger.info(`Creating timeout promise with ${timeoutMs}ms delay`);
+                const timeoutPromise = new Promise((_, reject) => {
+                    setTimeout(() => {
+                        const timeoutError = new Error(`Request timeout after ${timeoutMs}ms`);
+                        window.debugLogger.error(`Timeout promise rejected: ${timeoutError.message}`);
+                        reject(timeoutError);
+                    }, timeoutMs);
+                });
+                
+                // Create the fetch promise with proper CORS handling
+                const fetchOptions = {
+                    method: 'GET',
+                    mode: 'cors',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    }
+                };
+                window.debugLogger.info(`Fetch options: ${JSON.stringify(fetchOptions, null, 2)}`);
+                
+                window.debugLogger.info(`Initiating fetch request to: "${backendUrl}"`);
+                const fetchPromise = fetch(backendUrl, fetchOptions);
+                window.debugLogger.info(`Fetch promise created, awaiting response...`);
+                
+                // Race between fetch and timeout
+                window.debugLogger.info(`Starting Promise.race between fetch and timeout`);
+                const response = await Promise.race([fetchPromise, timeoutPromise]);
+                window.debugLogger.info(`Promise.race completed, response received`);
+                
+                window.debugLogger.info(`Response object type: ${typeof response}`);
+                window.debugLogger.info(`Response constructor: ${response.constructor.name}`);
+                window.debugLogger.info(`Response status: ${response.status}`);
+                window.debugLogger.info(`Response status text: "${response.statusText}"`);
+                window.debugLogger.info(`Response ok: ${response.ok}`);
+                window.debugLogger.info(`Response type: ${response.type}`);
+                window.debugLogger.info(`Response url: ${response.url}`);
+                window.debugLogger.info(`Response redirected: ${response.redirected}`);
+                
+                // Log all response headers
+                window.debugLogger.info(`=== RESPONSE HEADERS ===`);
+                const headerEntries = Array.from(response.headers.entries());
+                headerEntries.forEach(([key, value]) => {
+                    window.debugLogger.info(`Header: ${key} = "${value}"`);
+                });
+                window.debugLogger.info(`Total headers: ${headerEntries.length}`);
+                
+                if (!response.ok) {
+                    const errorMsg = `HTTP ${response.status}: ${response.statusText}`;
+                    window.debugLogger.error(`Response not ok: ${errorMsg}`);
+                    window.debugLogger.error(`Response status code: ${response.status}`);
+                    window.debugLogger.error(`Response status text: "${response.statusText}"`);
+                    throw new Error(errorMsg);
+                }
+                
+                window.debugLogger.info(`Response is ok, attempting to parse JSON`);
+                const result = await response.json();
+                window.debugLogger.info(`JSON parsing completed`);
+                window.debugLogger.info(`Result type: ${typeof result}`);
+                window.debugLogger.info(`Result constructor: ${result.constructor.name}`);
+                window.debugLogger.info(`Result keys: ${Object.keys(result).join(', ')}`);
+                window.debugLogger.info(`Result success property: ${result.success}`);
+                window.debugLogger.info(`Result source property: ${result.source}`);
+                window.debugLogger.info(`Result data type: ${typeof result.data}`);
+                window.debugLogger.info(`Result data keys: ${result.data ? Object.keys(result.data).join(', ') : 'null'}`);
+                
+                if (!result.success) {
+                    const errorMsg = result.error || 'Backend API returned error';
+                    window.debugLogger.error(`Result success is false: ${errorMsg}`);
+                    window.debugLogger.error(`Full result object: ${JSON.stringify(result, null, 2)}`);
+                    throw new Error(errorMsg);
+                }
+                
+                window.debugLogger.info(`Result success is true, processing data`);
+                window.debugLogger.info(`Data source: ${result.source}`);
+                window.debugLogger.info(`Raw data object: ${JSON.stringify(result.data, null, 2)}`);
+                console.log('[DEBUG] Backend IP data received:', result.data);
+                
+                // Add client-side calculated fields
+                window.debugLogger.info(`Adding client-side calculated fields`);
+                const clientProps = this.getClientProperties();
+                const neighborhood = this.generateIPNeighborhood(ip);
+                const httpHeaders = this.getHTTPHeaders();
+                const antipode = this.calculateAntipode(result.data.latitude || 0, result.data.longitude || 0);
+                
+                window.debugLogger.info(`Client properties: ${JSON.stringify(clientProps, null, 2)}`);
+                window.debugLogger.info(`Neighborhood: ${JSON.stringify(neighborhood, null, 2)}`);
+                window.debugLogger.info(`HTTP headers: ${JSON.stringify(httpHeaders, null, 2)}`);
+                window.debugLogger.info(`Antipode: ${JSON.stringify(antipode, null, 2)}`);
+                
+                const data = {
+                    ...result.data,
+                    client_properties: clientProps,
+                    neighborhood: neighborhood,
+                    http_headers: httpHeaders,
+                    antipode: antipode
+                };
+                
+                window.debugLogger.info(`Final enhanced data object: ${JSON.stringify(data, null, 2)}`);
+                window.debugLogger.info(`Enhanced data keys: ${Object.keys(data).join(', ')}`);
+                
+                // Update status indicator
+                if (statusText) {
+                    statusText.textContent = `Data retrieved successfully from ${result.source}`;
+                    window.debugLogger.info(`Status text updated to: "Data retrieved successfully from ${result.source}"`);
+                }
+                
+                // Update debug status
+                this.updateDebugStatus('lastIP', ip);
+                this.updateDebugStatus('cache', result.source === 'Cache' ? 'Hit' : 'Miss');
+                window.debugLogger.info(`Debug status updated: lastIP=${ip}, cache=${result.source === 'Cache' ? 'Hit' : 'Miss'}`);
+                
+                window.debugLogger.info(`=== GETIPINFO METHOD COMPLETED SUCCESSFULLY ===`);
+                return data;
+                        
+            } catch (error) {
+                window.debugLogger.error(`=== GETIPINFO METHOD FAILED ===`);
+                window.debugLogger.error(`Error type: ${error.constructor.name}`);
+                window.debugLogger.error(`Error name: ${error.name}`);
+                window.debugLogger.error(`Error message: "${error.message}"`);
+                window.debugLogger.error(`Error stack: ${error.stack}`);
+                window.debugLogger.error(`Error cause: ${error.cause || 'undefined'}`);
+                window.debugLogger.error(`Error toString(): ${error.toString()}`);
+                window.debugLogger.error(`Error JSON: ${JSON.stringify(error, Object.getOwnPropertyNames(error), 2)}`);
+                console.error('[DEBUG] Backend API error:', error);
+                
+                // Update status indicator
+                const statusText = document.getElementById('statusText');
+                if (statusText) {
+                    statusText.textContent = `Error: ${error.message}`;
+                    window.debugLogger.info(`Status text updated to error: "Error: ${error.message}"`);
+                }
+                
+                // Show user-friendly error message
+                this.showWarning('Unable to retrieve IP information. Please check if the backend server is running.');
+                window.debugLogger.error(`=== GETIPINFO METHOD EXITING WITH ERROR ===`);
+                throw error;
+            }
+        }
+                    
+                    // Log HTTP headers
+                    if (data.http_headers && Object.keys(data.http_headers).length > 0) {
+                        window.debugLogger.info('=== HTTP HEADERS ===');
+                        Object.keys(data.http_headers).forEach(key => {
+                            window.debugLogger.info(`${key}: ${data.http_headers[key] || 'MISSING'}`);
+                        });
+                    } else {
+                        window.debugLogger.warn('HTTP Headers: MISSING');
+                    }
+                    
+                    // Log antipode
+                    if (data.antipode) {
+                        window.debugLogger.info(`Antipode: ${data.antipode.lat}, ${data.antipode.lng}`);
+                    } else {
+                        window.debugLogger.warn('Antipode: MISSING');
+                    }
+                    
+                    window.debugLogger.info('=== END FIELD ANALYSIS ===');
+                    
+                    // Calculate IP representations
+                    const ipParts = ip.split('.');
+                    const decimal = (parseInt(ipParts[0]) << 24) + (parseInt(ipParts[1]) << 16) + (parseInt(ipParts[2]) << 8) + parseInt(ipParts[3]);
+                    const binary = ipParts.map(part => parseInt(part).toString(2).padStart(8, '0')).join(' ');
+                    const hex = '0x' + ipParts.map(part => parseInt(part).toString(16).padStart(2, '0')).join('');
+                    
+                    // Get client properties
+                    const clientProps = this.getClientProperties();
+                    
+                    // Generate IP neighborhood
+                    const neighborhood = this.generateIPNeighborhood(ip);
+                    
+                    return {
+                        ip: ip,
+                        domain: data.hostname || additionalData.hostname || 'Unknown',
+                        isp: data.org || additionalData.org || 'Unknown',
+                        asn: data.asn || additionalData.asn || 'Unknown',
+                        ipv4: ip,
+                        ipv6: additionalData.ipv6 || 'N/A',
+                        country_name: data.country_name || additionalData.country || 'Unknown',
+                        country_code: data.country_code || additionalData.country || 'Unknown',
+                        continent: this.getContinent(data.country_code || additionalData.country),
+                        region: data.region || additionalData.region || 'Unknown',
+                        city: data.city || additionalData.city || 'Unknown',
+                        postal: data.postal || additionalData.postal || 'Unknown',
+                        latitude: parseFloat(data.latitude) || parseFloat(additionalData.loc?.split(',')[0]) || 0,
+                        longitude: parseFloat(data.longitude) || parseFloat(additionalData.loc?.split(',')[1]) || 0,
+                        timezone: data.timezone || additionalData.timezone || 'Unknown',
+                        decimal: decimal,
+                        binary: binary,
+                        hex: hex,
+                        client_properties: clientProps,
+                        neighborhood: neighborhood,
+                        http_headers: this.getHTTPHeaders(),
+                        antipode: this.calculateAntipode(parseFloat(data.latitude) || 0, parseFloat(data.longitude) || 0)
+                    };
+                } catch (error) {
+                    console.error('Error getting IP info:', error);
+                    throw error;
+                }
+            }
+
+            setupEventListeners() {
+                window.debugLogger.info('=== SETTING UP EVENT LISTENERS ===');
+                window.debugLogger.setLoading('eventListeners', true);
+                
+                const checkBtn = document.getElementById('checkIpBtn');
+                const ipInput = document.getElementById('ipInput');
+                const copyCurrentIpBtn = document.getElementById('copyCurrentIpBtn');
+                const debugLogBtn = document.getElementById('debugLogBtn');
+
+                // Track element existence
+                window.debugLogger.trackElementState('checkIpBtn', checkBtn ? 'found' : 'not found');
+                window.debugLogger.trackElementState('ipInput', ipInput ? 'found' : 'not found');
+                window.debugLogger.trackElementState('copyCurrentIpBtn', copyCurrentIpBtn ? 'found' : 'not found');
+                window.debugLogger.trackElementState('debugLogBtn', debugLogBtn ? 'found' : 'not found');
+
+                if (checkBtn) {
+                    checkBtn.addEventListener('click', () => {
+                        window.debugLogger.trackClick('checkIpBtn', 'Check IP button clicked');
+                        this.checkIP();
+                    });
+                    window.debugLogger.info('Check IP button event listener added');
+                } else {
+                    window.debugLogger.error('Check IP button not found!');
+                }
+
+                if (ipInput) {
+                    ipInput.addEventListener('keypress', (e) => {
+                        if (e.key === 'Enter') {
+                            window.debugLogger.trackClick('ipInput', 'Enter key pressed in IP input');
+                            this.checkIP();
+                        }
+                    });
+                    window.debugLogger.info('IP input keypress event listener added');
+                } else {
+                    window.debugLogger.error('IP input not found!');
+                }
+
+                if (copyCurrentIpBtn) {
+                    copyCurrentIpBtn.addEventListener('click', () => {
+                        window.debugLogger.trackClick('copyCurrentIpBtn', 'Copy current IP button clicked');
+                        this.copyToClipboard(this.currentIP);
+                    });
+                    window.debugLogger.info('Copy current IP button event listener added');
+                } else {
+                    window.debugLogger.error('Copy current IP button not found!');
+                }
+
+                // Debug log button
+                if (debugLogBtn) {
+                    debugLogBtn.addEventListener('click', () => {
+                        window.debugLogger.trackClick('debugLogBtn', 'Debug log button clicked');
+                        this.showDebugLog();
+                    });
+                    window.debugLogger.info('Debug log button event listener added');
+                } else {
+                    window.debugLogger.error('Debug log button not found!');
+                }
+
+                // Debug modal event listeners
+                const closeDebugModal = document.getElementById('closeDebugModal');
+                const copyDebugLog = document.getElementById('copyDebugLog');
+                const clearDebugLog = document.getElementById('clearDebugLog');
+
+                if (closeDebugModal) {
+                    closeDebugModal.addEventListener('click', () => {
+                        window.debugLogger.trackClick('closeDebugModal', 'Close debug modal button clicked');
+                        this.hideDebugLog();
+                    });
+                    window.debugLogger.info('Close debug modal button event listener added');
+                } else {
+                    window.debugLogger.error('Close debug modal button not found!');
+                }
+
+                if (copyDebugLog) {
+                    copyDebugLog.addEventListener('click', () => {
+                        window.debugLogger.trackClick('copyDebugLog', 'Copy debug log button clicked');
+                        this.copyDebugLog();
+                    });
+                    window.debugLogger.info('Copy debug log button event listener added');
+                } else {
+                    window.debugLogger.error('Copy debug log button not found!');
+                }
+
+                if (clearDebugLog) {
+                    clearDebugLog.addEventListener('click', () => {
+                        window.debugLogger.trackClick('clearDebugLog', 'Clear debug log button clicked');
+                        this.clearDebugLog();
+                    });
+                    window.debugLogger.info('Clear debug log button event listener added');
+                } else {
+                    window.debugLogger.error('Clear debug log button not found!');
+                }
+
+                // Close modal when clicking outside
+                const debugLogModal = document.getElementById('debugLogModal');
+                if (debugLogModal) {
+                    debugLogModal.addEventListener('click', (e) => {
+                        if (e.target.id === 'debugLogModal') {
+                            window.debugLogger.trackClick('debugLogModal', 'Clicked outside debug modal to close');
+                            this.hideDebugLog();
+                        }
+                    });
+                    window.debugLogger.info('Debug modal outside click event listener added');
+                } else {
+                    window.debugLogger.error('Debug modal not found!');
+                }
+
+                if (ipInput) {
+                    ipInput.focus();
+                    window.debugLogger.info('IP input focused');
+                }
+                
+                window.debugLogger.setLoading('eventListeners', false);
+                window.debugLogger.info('=== EVENT LISTENERS SETUP COMPLETED ===');
+            }
+
+            async checkIP() {
+                window.debugLogger.info(`=== CHECKIP METHOD CALLED ===`);
+                window.debugLogger.info(`Timestamp: ${new Date().toISOString()}`);
+                window.debugLogger.info(`User Agent: ${navigator.userAgent}`);
+                window.debugLogger.info(`Current URL: ${window.location.href}`);
+                window.debugLogger.info(`Document Ready State: ${document.readyState}`);
+                
+                const ipInput = document.getElementById('ipInput');
+                const checkBtn = document.getElementById('checkIpBtn');
+                const loadingSpinner = document.getElementById('loadingSpinner');
+                
+                window.debugLogger.info(`IP input element found: ${!!ipInput}`);
+                window.debugLogger.info(`Check button element found: ${!!checkBtn}`);
+                window.debugLogger.info(`Loading spinner element found: ${!!loadingSpinner}`);
+                
+                if (!ipInput) {
+                    window.debugLogger.error(`IP input element not found!`);
+                    return;
+                }
+                
+                if (!checkBtn) {
+                    window.debugLogger.error(`Check button element not found!`);
+                    return;
+                }
+                
+                if (!loadingSpinner) {
+                    window.debugLogger.error(`Loading spinner element not found!`);
+                    return;
+                }
+
+                const rawValue = ipInput.value;
+                const ip = rawValue.trim();
+                window.debugLogger.info(`Raw input value: "${rawValue}"`);
+                window.debugLogger.info(`Trimmed IP: "${ip}"`);
+                window.debugLogger.info(`IP type: ${typeof ip}`);
+                window.debugLogger.info(`IP length: ${ip.length}`);
+                window.debugLogger.info(`IP is empty: ${ip === ''}`);
+                window.debugLogger.info(`IP is null: ${ip === null}`);
+                window.debugLogger.info(`IP is undefined: ${ip === undefined}`);
+                window.debugLogger.info(`Manual IP search input: "${ip}"`);
+                
+                if (!ip) {
+                    window.debugLogger.error(`Empty IP input provided`);
+                    window.debugLogger.error(`IP validation failed: empty string`);
+                    this.showError('Please enter an IP address');
+                    return;
+                }
+
+                window.debugLogger.info(`IP validation: calling isValidIP("${ip}")`);
+                const isValid = this.isValidIP(ip);
+                window.debugLogger.info(`IP validation result: ${isValid}`);
+                
+                if (!isValid) {
+                    window.debugLogger.error(`Invalid IP format: "${ip}"`);
+                    window.debugLogger.error(`IP validation failed: invalid format`);
+                    this.showError('Please enter a valid IP address');
+                    return;
+                }
+
+                window.debugLogger.info(`Valid IP format detected: "${ip}"`);
+                window.debugLogger.info(`Disabling check button`);
+                checkBtn.disabled = true;
+                window.debugLogger.info(`Check button disabled: ${checkBtn.disabled}`);
+                
+                window.debugLogger.info(`Showing loading spinner`);
+                loadingSpinner.style.display = 'inline-block';
+                window.debugLogger.info(`Loading spinner display: "${loadingSpinner.style.display}"`);
+                window.debugLogger.info(`Loading spinner visible: ${loadingSpinner.offsetParent !== null}`);
+                
+                window.debugLogger.info(`Hiding previous messages`);
+                this.hideMessages();
+
+                try {
+                    window.debugLogger.info(`Starting manual IP lookup for: ${ip}`);
+                    console.log('Checking IP:', ip);
+                    
+                            // Test backend connectivity first
+                    window.debugLogger.info(`=== BACKEND CONNECTIVITY TEST STARTED ===`);
+                    window.debugLogger.info(`Calling testBackendConnectivity() method`);
+                    const backendConnected = await this.testBackendConnectivity();
+                    window.debugLogger.info(`Backend connectivity test result: ${backendConnected}`);
+                    
+                    if (!backendConnected) {
+                        window.debugLogger.error(`Backend connectivity test failed`);
+                        window.debugLogger.error(`Cannot proceed with IP lookup without backend connection`);
+                        this.showError('Backend server is not accessible. Please ensure the server is running on port 3000.');
+                        return;
+                    }
+                    window.debugLogger.info(`Backend connectivity test passed`);
+                    
+                    // Update status indicator
+                    const statusText = document.getElementById('statusText');
+                    window.debugLogger.info(`Status text element found: ${!!statusText}`);
+                    if (statusText) {
+                        statusText.textContent = 'Backend connected - Fetching IP data...';
+                        window.debugLogger.info(`Status text updated to: "Backend connected - Fetching IP data..."`);
+                    }
+                    
+                    // Clear previous results completely
+                    window.debugLogger.info(`=== CLEARING PREVIOUS RESULTS ===`);
+                    const resultsSection = document.getElementById('resultsSection');
+                    window.debugLogger.info(`Results section element found: ${!!resultsSection}`);
+                    
+                    if (resultsSection) {
+                        window.debugLogger.info(`Hiding results section`);
+                        resultsSection.style.display = 'none';
+                        window.debugLogger.info(`Results section display: "${resultsSection.style.display}"`);
+                        window.debugLogger.info(`Results section visible: ${resultsSection.offsetParent !== null}`);
+                        window.debugLogger.trackVisibility('resultsSection', false);
+                        window.debugLogger.info('Previous results hidden');
+                        
+                        // Clear the network grid content
+                        const networkGrid = document.getElementById('networkGrid');
+                        window.debugLogger.info(`Network grid element found: ${!!networkGrid}`);
+                        if (networkGrid) {
+                            window.debugLogger.info(`Clearing network grid content`);
+                            const oldContent = networkGrid.innerHTML;
+                            window.debugLogger.info(`Old network grid content length: ${oldContent.length}`);
+                            networkGrid.innerHTML = '';
+                            window.debugLogger.info(`New network grid content length: ${networkGrid.innerHTML.length}`);
+                            window.debugLogger.info('Network grid content cleared');
+                        }
+                        
+                        // Clear map containers
+                        const ipMap = document.getElementById('ipMap');
+                        const antipodeMap = document.getElementById('antipodeMap');
+                        window.debugLogger.info(`IP map element found: ${!!ipMap}`);
+                        window.debugLogger.info(`Antipode map element found: ${!!antipodeMap}`);
+                        
+                        if (ipMap) {
+                            window.debugLogger.info(`Clearing IP map container`);
+                            ipMap.innerHTML = '';
+                            window.debugLogger.info(`IP map container cleared`);
+                        }
+                        if (antipodeMap) {
+                            window.debugLogger.info(`Clearing antipode map container`);
+                            antipodeMap.innerHTML = '';
+                            window.debugLogger.info(`Antipode map container cleared`);
+                        }
+                        window.debugLogger.info('Map containers cleared');
+                        
+                        // Remove existing maps
+                        window.debugLogger.info(`Main map instance exists: ${!!this.map}`);
+                        if (this.map) {
+                            window.debugLogger.info(`Removing previous main map`);
+                            this.map.remove();
+                            this.map = null;
+                            window.debugLogger.info('Previous main map removed');
+                        }
+                        
+                        window.debugLogger.info(`Antipode map instance exists: ${!!this.antipodeMap}`);
+                        if (this.antipodeMap) {
+                            window.debugLogger.info(`Removing previous antipode map`);
+                            this.antipodeMap.remove();
+                            this.antipodeMap = null;
+                            window.debugLogger.info('Previous antipode map removed');
+                        }
+                    } else {
+                        window.debugLogger.warn(`Results section element not found, cannot clear previous results`);
+                    }
+                    
+                    // Get IP information
+                    window.debugLogger.info(`=== IP LOOKUP STARTED ===`);
+                    window.debugLogger.info(`Calling getIPInfo("${ip}")`);
+                    const data = await this.getIPInfo(ip);
+                    window.debugLogger.info(`IP lookup completed for: "${ip}"`);
+                    window.debugLogger.info(`Data object type: ${typeof data}`);
+                    window.debugLogger.info(`Data constructor: ${data.constructor.name}`);
+                    window.debugLogger.info(`Data keys: ${Object.keys(data).join(', ')}`);
+                    window.debugLogger.info(`Full data object: ${JSON.stringify(data, null, 2)}`);
+                    console.log('[DEBUG] IP data received:', data);
+                    
+                    // Verify data is for the correct IP
+                    window.debugLogger.info(`=== DATA VERIFICATION ===`);
+                    window.debugLogger.info(`Requested IP: "${ip}"`);
+                    window.debugLogger.info(`Received IP: "${data.ip}"`);
+                    window.debugLogger.info(`IP comparison: "${ip}" === "${data.ip}" = ${ip === data.ip}`);
+                    
+                    if (data.ip !== ip) {
+                        window.debugLogger.error(`IP mismatch detected!`);
+                        window.debugLogger.error(`Requested IP: "${ip}"`);
+                        window.debugLogger.error(`Received IP: "${data.ip}"`);
+                        window.debugLogger.error(`Data mismatch detected, cannot proceed`);
+                        this.showError('Data mismatch detected. Please try again.');
+                        return;
+                    }
+                    
+                    window.debugLogger.info(`Data verified for IP: "${ip}"`);
+                    window.debugLogger.info(`Setting manualSearchPerformed state to true`);
+                    window.debugLogger.setState('manualSearchPerformed', true);
+                    
+                    window.debugLogger.info(`Calling displayResults with data`);
+                    this.displayResults(data);
+                    
+                    window.debugLogger.info(`Showing success message`);
+                    this.showSuccess(`IP information retrieved successfully for ${ip}`);
+                } catch (error) {
+                    window.debugLogger.error(`=== CHECKIP METHOD FAILED ===`);
+                    window.debugLogger.error(`Error type: ${error.constructor.name}`);
+                    window.debugLogger.error(`Error name: ${error.name}`);
+                    window.debugLogger.error(`Error message: "${error.message}"`);
+                    window.debugLogger.error(`Error stack: ${error.stack}`);
+                    window.debugLogger.error(`Error cause: ${error.cause || 'undefined'}`);
+                    window.debugLogger.error(`Error toString(): ${error.toString()}`);
+                    window.debugLogger.error(`Error JSON: ${JSON.stringify(error, Object.getOwnPropertyNames(error), 2)}`);
+                    window.debugLogger.error(`Manual IP lookup failed for "${ip}": ${error.message}`);
+                    console.error('[DEBUG] Error checking IP:', error);
+                    this.showError('Failed to retrieve IP information. Please try again.');
+                } finally {
+                    window.debugLogger.info(`=== CHECKIP METHOD CLEANUP ===`);
+                    window.debugLogger.info(`Re-enabling check button`);
+                    checkBtn.disabled = false;
+                    window.debugLogger.info(`Check button disabled: ${checkBtn.disabled}`);
+                    
+                    window.debugLogger.info(`Hiding loading spinner`);
+                    loadingSpinner.style.display = 'none';
+                    window.debugLogger.info(`Loading spinner display: "${loadingSpinner.style.display}"`);
+                    window.debugLogger.info(`Loading spinner visible: ${loadingSpinner.offsetParent !== null}`);
+                    
+                    window.debugLogger.info(`=== CHECKIP METHOD COMPLETED ===`);
+                }
+            }
+
+            isValidIP(ip) {
+                const ipv4Regex = /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
+                return ipv4Regex.test(ip);
+            }
+
+            displayResults(data) {
+                window.debugLogger.info('=== DISPLAYING RESULTS ===');
+                console.log('Displaying results for:', data);
+                
+                // Update status indicator
+                const statusText = document.getElementById('statusText');
+                if (statusText) {
+                    statusText.textContent = `Displaying results for ${data.ip || 'unknown IP'}...`;
+                }
+                
+                const resultsSection = document.getElementById('resultsSection');
+                const mapLocation = document.getElementById('mapLocation');
+
+                if (!resultsSection) {
+                    window.debugLogger.error('Results section not found');
+                    console.error('Results section not found');
+                    return;
+                }
+
+                window.debugLogger.info('Results section found, displaying...');
+                resultsSection.style.display = 'block';
+                window.debugLogger.trackVisibility('resultsSection', true);
+                window.debugLogger.trackElementState('resultsSection', 'display: block');
+
+                const location = `${data.city || 'Unknown'}, ${data.country_name || 'Unknown'}`;
+                window.debugLogger.info(`Location string: ${location}`);
+                
+                if (mapLocation) {
+                    mapLocation.textContent = location;
+                    window.debugLogger.info(`Map location updated: ${location}`);
+                } else {
+                    window.debugLogger.warn('Map location element not found');
+                }
+
+                this.populateNetworkInfo(data);
+                this.initializeMap(data.latitude, data.longitude, location);
+                
+                // Scroll to results
+                resultsSection.scrollIntoView({ behavior: 'smooth' });
+                window.debugLogger.info('Results displayed and scrolled to view');
+                window.debugLogger.setState('resultsDisplayed', true);
+                window.debugLogger.setState('lastSearchedIP', data.ip);
+                
+                // Update status indicator
+                if (statusText) {
+                    statusText.textContent = `Results displayed for ${data.ip || 'unknown IP'}`;
+                }
+                
+                // Update debug status
+                this.updateDebugStatus('results', 'Displayed ✓');
+            }
+
+            populateNetworkInfo(data) {
+                window.debugLogger.info('=== POPULATING NETWORK INFO ===');
+                console.log('Populating network info with:', data);
+                const networkGrid = document.getElementById('networkGrid');
+                
+                if (!networkGrid) {
+                    window.debugLogger.error('Network grid not found');
+                    console.error('Network grid not found');
+                    return;
+                }
+                
+                window.debugLogger.info('Network grid found, populating...');
+                
+                const networkHTML = `
+                    <!-- IP Data Section -->
+                    <div class="detail-item full-width">
+                        <div class="detail-label">IP Data</div>
+                        <div class="detail-value">
+                            <div class="ip-data-grid">
+                                <div><strong>Domain:</strong> ${data.domain || 'Unknown'}</div>
+                                <div><strong>ISP:</strong> ${data.isp || 'Unknown'}</div>
+                                <div><strong>ASN:</strong> ${data.asn || 'Unknown'}</div>
+                                <div><strong>IPv4:</strong> ${data.ipv4 || data.ip}</div>
+                                <div><strong>IPv6:</strong> ${data.ipv6 || 'N/A'}</div>
+                                <div><strong>IP Class:</strong> ${data.ip_class || 'Unknown'}</div>
+                                <div><strong>IP Type:</strong> ${data.ip_type || 'Unknown'}</div>
+                    </div>
+                    </div>
+                    </div>
+                    
+                    <!-- Geographical Data Section -->
+                    <div class="detail-item full-width">
+                        <div class="detail-label">Geographical Data</div>
+                        <div class="detail-value">
+                            <div class="geo-data-grid">
+                                <div><strong>Continent:</strong> ${data.continent}</div>
+                                <div><strong>Country:</strong> ${data.country_name} (${data.country_code})</div>
+                                <div><strong>State/Region:</strong> ${data.region}</div>
+                                <div><strong>City:</strong> ${data.city}</div>
+                                <div><strong>Postal Code:</strong> ${data.postal}</div>
+                                <div><strong>Lat/Long:</strong> ${data.latitude} / ${data.longitude}</div>
+                        </div>
+                    </div>
+                    </div>
+                    
+                    <!-- IP Representations Section -->
+                    <div class="detail-item full-width">
+                        <div class="detail-label">IP Representations</div>
+                        <div class="detail-value">
+                            <div class="ip-rep-grid">
+                                <div><strong>Decimal:</strong> ${data.decimal}</div>
+                                <div><strong>Binary:</strong> ${data.binary}</div>
+                                <div><strong>Hex:</strong> ${data.hex}</div>
+                    </div>
+                    </div>
+                    </div>
+                    
+                    <!-- Client Properties Section -->
+                    <div class="detail-item full-width">
+                        <div class="detail-label">Client Properties</div>
+                        <div class="detail-value">
+                            <div class="client-props-grid">
+                                <div><strong>Screen Resolution:</strong> ${data.client_properties.screen_resolution}</div>
+                                <div><strong>Color Depth:</strong> ${data.client_properties.color_depth}</div>
+                                <div><strong>Operating System:</strong> ${data.client_properties.operating_system}</div>
+                                <div><strong>Cookies Enabled:</strong> ${data.client_properties.cookies_enabled}</div>
+                                <div><strong>Java:</strong> ${data.client_properties.java}</div>
+                                <div><strong>WebGL:</strong> ${data.client_properties.webgl}</div>
+                                <div><strong>Plugins:</strong> ${data.client_properties.plugins}</div>
+                                <div><strong>Local Time:</strong> ${data.client_properties.local_time}</div>
+                    </div>
+                    </div>
+                    </div>
+                    
+                    <!-- HTTP Headers Section -->
+                    <div class="detail-item full-width">
+                        <div class="detail-label">HTTP Headers</div>
+                        <div class="detail-value">
+                            <div class="headers-grid">
+                                <div><strong>User-Agent:</strong> ${data.http_headers['User-Agent']}</div>
+                                <div><strong>Accept-Language:</strong> ${data.http_headers['Accept-Language']}</div>
+                                <div><strong>Accept-Encoding:</strong> ${data.http_headers['Accept-Encoding']}</div>
+                                <div><strong>Accept:</strong> ${data.http_headers['Accept']}</div>
+                    </div>
+                    </div>
+                    </div>
+                    
+                    <!-- IP Neighborhood Section -->
+                    <div class="detail-item full-width">
+                        <div class="detail-label">IP Neighborhood</div>
+                        <div class="detail-value">
+                            <div class="neighborhood-grid">
+                                ${data.neighborhood.map(ip => `<span class="neighbor-ip">${ip}</span>`).join('')}
+                    </div>
+                    </div>
+                    </div>
+                `;
+                networkGrid.innerHTML = networkHTML;
+                window.debugLogger.info('Network grid HTML populated successfully');
+                console.log('Network info populated');
+                
+                // Note: Maps will be initialized in displayResults function
+                window.debugLogger.info('Map initialization will be handled by displayResults function');
+                
+                window.debugLogger.info('=== NETWORK INFO POPULATION COMPLETE ===');
+            }
+
+            initializeMap(lat, lng, location) {
+                window.debugLogger.info(`=== INITIALIZING MAPS ===`);
+                window.debugLogger.info(`Latitude: ${lat}, Longitude: ${lng}, Location: ${location}`);
+                window.debugLogger.info(`Map initialization parameters - lat: ${typeof lat}, lng: ${typeof lng}, location: ${typeof location}`);
+                
+                const mapContainer = document.getElementById('ipMap');
+                const antipodeMapContainer = document.getElementById('antipodeMap');
+
+                window.debugLogger.info(`Main map container found: ${!!mapContainer}`);
+                window.debugLogger.info(`Antipode map container found: ${!!antipodeMapContainer}`);
+
+                if (!mapContainer) {
+                    window.debugLogger.error('Main map container not found');
+                    return;
+                }
+                if (!antipodeMapContainer) {
+                    window.debugLogger.error('Antipode map container not found');
+                    return;
+                }
+
+                window.debugLogger.info('Map containers found, initializing...');
+                window.debugLogger.info(`Map container dimensions: ${mapContainer.offsetWidth}x${mapContainer.offsetHeight}`);
+                window.debugLogger.info(`Antipode container dimensions: ${antipodeMapContainer.offsetWidth}x${antipodeMapContainer.offsetHeight}`);
+
+                if (this.map) {
+                    this.map.remove();
+                    window.debugLogger.info('Previous main map removed');
+                }
+                if (this.antipodeMap) {
+                    this.antipodeMap.remove();
+                    window.debugLogger.info('Previous antipode map removed');
+                }
+
+                // Main location map
+                window.debugLogger.info(`Creating main map with view: [${lat || 0}, ${lng || 0}]`);
+                this.map = L.map('ipMap').setView([lat || 0, lng || 0], 10);
+                window.debugLogger.info('Main map created successfully');
+
+                window.debugLogger.info('Adding tile layer to main map...');
+                L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+                    attribution: '©OpenStreetMap, ©CartoDB',
+                    subdomains: 'abcd',
+                    maxZoom: 19
+                }).addTo(this.map);
+                window.debugLogger.info('Tile layer added to main map');
+
+                if (lat && lng && lat !== 0 && lng !== 0) {
+                    window.debugLogger.info(`Adding marker at coordinates: [${lat}, ${lng}]`);
+                    this.marker = L.marker([lat, lng]).addTo(this.map);
+                    this.marker.bindPopup(`<b>${location}</b><br>IP Location`).openPopup();
+                    window.debugLogger.info('Marker added and popup opened');
+                } else {
+                    window.debugLogger.warn('No valid coordinates for marker, skipping marker creation');
+                }
+
+                // Antipode map
+                window.debugLogger.info('Calculating antipode coordinates...');
+                const antipode = this.calculateAntipode(lat, lng);
+                window.debugLogger.info(`Antipode calculated: [${antipode.lat}, ${antipode.lng}]`);
+                
+                window.debugLogger.info(`Creating antipode map with view: [${antipode.lat}, ${antipode.lng}]`);
+                this.antipodeMap = L.map('antipodeMap').setView([antipode.lat, antipode.lng], 10);
+                window.debugLogger.info('Antipode map created successfully');
+
+                window.debugLogger.info('Adding tile layer to antipode map...');
+                L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+                    attribution: '©OpenStreetMap, ©CartoDB',
+                    subdomains: 'abcd',
+                    maxZoom: 19
+                }).addTo(this.antipodeMap);
+                window.debugLogger.info('Tile layer added to antipode map');
+
+                if (antipode.lat && antipode.lng && antipode.lat !== 0 && antipode.lng !== 0) {
+                    window.debugLogger.info(`Adding antipode marker at coordinates: [${antipode.lat}, ${antipode.lng}]`);
+                    this.antipodeMarker = L.marker([antipode.lat, antipode.lng]).addTo(this.antipodeMap);
+                    this.antipodeMarker.bindPopup(`<b>Antipode</b><br>Opposite point on Earth`).openPopup();
+                    window.debugLogger.info('Antipode marker added and popup opened');
+                    
+                    // Update antipode location text
+                    const antipodeLocation = document.getElementById('antipodeLocation');
+                    if (antipodeLocation) {
+                        antipodeLocation.textContent = `${antipode.lat.toFixed(4)}, ${antipode.lng.toFixed(4)}`;
+                        window.debugLogger.info(`Antipode location text updated: ${antipode.lat.toFixed(4)}, ${antipode.lng.toFixed(4)}`);
+                    } else {
+                        window.debugLogger.warn('Antipode location element not found');
+                    }
+                } else {
+                    window.debugLogger.warn('No valid antipode coordinates, skipping antipode marker creation');
+                }
+                
+                window.debugLogger.info('=== MAP INITIALIZATION COMPLETE ===');
+             }
+
+             async copyToClipboard(text) {
+                if (!text) {
+                     this.showError('No IP address to copy');
+                     return;
+                 }
+
+                 try {
+                     await navigator.clipboard.writeText(text);
+                    this.showSuccess('IP address copied to clipboard!');
+                 } catch (err) {
+                     const textArea = document.createElement('textarea');
+                     textArea.value = text;
+                     document.body.appendChild(textArea);
+                     textArea.select();
+                     try {
+                         document.execCommand('copy');
+                        this.showSuccess('IP address copied to clipboard!');
+                     } catch (fallbackErr) {
+                         this.showError('Failed to copy IP address');
+                     }
+                     document.body.removeChild(textArea);
+                 }
+             }
+
+            showError(message) {
+                const errorMessage = document.getElementById('errorMessage');
+                errorMessage.textContent = message;
+                errorMessage.style.display = 'block';
+                document.getElementById('successMessage').style.display = 'none';
+            }
+
+            showSuccess(message) {
+                const successMessage = document.getElementById('successMessage');
+                successMessage.textContent = message;
+                successMessage.style.display = 'block';
+                document.getElementById('errorMessage').style.display = 'none';
+            }
+
+            showWarning(message) {
+                const warningMessage = document.getElementById('warningMessage');
+                if (warningMessage) {
+                    warningMessage.textContent = message;
+                    warningMessage.style.display = 'block';
+                } else {
+                    // Create warning message element if it doesn't exist
+                    const warningDiv = document.createElement('div');
+                    warningDiv.id = 'warningMessage';
+                    warningDiv.className = 'warning-message';
+                    warningDiv.textContent = message;
+                    warningDiv.style.cssText = 'color: #ffa500; background: rgba(255, 165, 0, 0.1); border: 1px solid #ffa500; padding: 1rem; border-radius: 8px; margin: 1rem 0; text-align: center;';
+                    document.getElementById('messages').appendChild(warningDiv);
+                }
+            }
+
+            hideMessages() {
+                document.getElementById('errorMessage').style.display = 'none';
+                document.getElementById('successMessage').style.display = 'none';
+                const warningMessage = document.getElementById('warningMessage');
+                if (warningMessage) {
+                    warningMessage.style.display = 'none';
+                }
+            }
+
+            getContinent(countryCode) {
+                const continentMap = {
+                    'US': 'North America', 'CA': 'North America', 'MX': 'North America',
+                    'BR': 'South America', 'AR': 'South America', 'CO': 'South America',
+                    'GB': 'Europe', 'DE': 'Europe', 'FR': 'Europe', 'IT': 'Europe', 'ES': 'Europe',
+                    'CN': 'Asia', 'JP': 'Asia', 'IN': 'Asia', 'KR': 'Asia', 'AU': 'Oceania',
+                    'ZA': 'Africa', 'EG': 'Africa', 'NG': 'Africa', 'KE': 'Africa'
+                };
+                return continentMap[countryCode] || 'Unknown';
+            }
+
+            getClientProperties() {
+                return {
+                    screen_resolution: `${screen.width} x ${screen.height}`,
+                    color_depth: screen.colorDepth,
+                    screen_dpi: `${screen.width / (screen.width / 96)} x ${screen.height / (screen.height / 96)}`,
+                    display_size: 'Unknown', // Would need additional calculation
+                    operating_system: navigator.platform,
+                    cookies_enabled: navigator.cookieEnabled ? 'yes' : 'no',
+                    java: navigator.javaEnabled ? 'yes' : 'no',
+                    flash: 'no', // Flash is deprecated
+                    webgl: this.isWebGLSupported() ? 'yes' : 'no',
+                    webgpu: 'no', // Would need additional detection
+                    plugins: this.getPlugins(),
+                    local_time: new Date().toString()
+                };
+            }
+            
+            isWebGLSupported() {
+                try {
+                    const canvas = document.createElement('canvas');
+                    return !!(window.WebGLRenderingContext && (canvas.getContext('webgl') || canvas.getContext('experimental-webgl')));
+                } catch (e) {
+                    return false;
+                }
+            }
+            
+            getPlugins() {
+                const plugins = [];
+                if (navigator.plugins) {
+                    for (let i = 0; i < navigator.plugins.length; i++) {
+                        plugins.push(navigator.plugins[i].name);
+                    }
+                }
+                return plugins.length > 0 ? plugins.join(', ') : 'None detected';
+            }
+
+            generateIPNeighborhood(ip) {
+                const parts = ip.split('.');
+                const base = parts.slice(0, 3).join('.');
+                const last = parseInt(parts[3]);
+                const neighborhood = [];
+                
+                // Generate nearby IPs
+                for (let i = Math.max(0, last - 10); i <= Math.min(255, last + 10); i++) {
+                    if (i !== last) {
+                        neighborhood.push(`${base}.${i}`);
+                    }
+                }
+                
+                return neighborhood.slice(0, 20); // Limit to 20 IPs
+            }
+            
+            getHTTPHeaders() {
+                return {
+                    'User-Agent': navigator.userAgent,
+                    'Accept-Language': navigator.language,
+                    'Accept-Encoding': 'gzip, deflate, br',
+                    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+                    'Connection': 'keep-alive',
+                    'Upgrade-Insecure-Requests': '1'
+                };
+            }
+            
+            calculateAntipode(lat, lng) {
+                if (!lat || !lng) return { lat: 0, lng: 0 };
+                return {
+                    lat: -lat,
+                    lng: lng > 0 ? lng - 180 : lng + 180
+                };
+            }
+        }
+
+        // Fetch timeout polyfill
+        function fetchWithTimeout(url, options = {}) {
+            const { timeout = 5000, ...fetchOptions } = options;
+            
+            return Promise.race([
+                fetch(url, fetchOptions),
+                new Promise((_, reject) =>
+                    setTimeout(() => reject(new Error('Request timeout')), timeout)
+                )
+            ]);
+        }
+        
+        // Enhanced Debug Log System with Deep Tracking
+        class DebugLogger {
+            constructor() {
+                this.logs = [];
+                this.maxLogs = 200; // Increased for more detailed tracking
+                this.states = new Map(); // Track all states
+                this.clicks = 0; // Track click count
+                this.loadingStates = new Map(); // Track loading states
+            }
+            
+            log(message, type = 'info') {
+                const timestamp = new Date().toISOString();
+                const logEntry = {
+                    timestamp,
+                    type,
+                    message
+                };
+                
+                this.logs.push(logEntry);
+                
+                // Keep only the last maxLogs entries
+                if (this.logs.length > this.maxLogs) {
+                    this.logs.shift();
+                }
+                
+                // Also log to console
+                console.log(`[${timestamp}] ${type.toUpperCase()}: ${message}`);
+            }
+            
+            // Track state changes
+            setState(key, value) {
+                const oldValue = this.states.get(key);
+                this.states.set(key, value);
+                this.log(`STATE CHANGE: ${key} = ${value} (was: ${oldValue || 'undefined'})`, 'state');
+            }
+            
+            // Track loading states
+            setLoading(key, isLoading) {
+                this.loadingStates.set(key, isLoading);
+                this.log(`LOADING STATE: ${key} = ${isLoading}`, 'loading');
+            }
+            
+            // Track clicks
+            trackClick(element, action) {
+                this.clicks++;
+                this.log(`CLICK #${this.clicks}: ${element} - ${action}`, 'click');
+            }
+            
+            // Track element visibility
+            trackVisibility(element, isVisible) {
+                this.log(`VISIBILITY: ${element} = ${isVisible}`, 'visibility');
+            }
+            
+            // Track element state
+            trackElementState(element, state) {
+                this.log(`ELEMENT STATE: ${element} = ${state}`, 'element');
+            }
+            
+            error(message) {
+                this.log(message, 'error');
+            }
+            
+            warn(message) {
+                this.log(message, 'warn');
+            }
+            
+            info(message) {
+                this.log(message, 'info');
+            }
+            
+            getLogText() {
+                return this.logs.map(log => 
+                    `[${log.timestamp}] ${log.type.toUpperCase()}: ${log.message}`
+                ).join('\n');
+            }
+            
+            clear() {
+                this.logs = [];
+            }
+        }
+        
+        // Global debug logger
+        window.debugLogger = new DebugLogger();
+        
+        // Global click tracker
+        function setupGlobalClickTracking() {
+            document.addEventListener('click', function(event) {
+                const element = event.target;
+                const elementId = element.id || 'no-id';
+                const elementClass = element.className || 'no-class';
+                const elementTag = element.tagName.toLowerCase();
+                const elementText = element.textContent?.substring(0, 50) || 'no-text';
+                
+                window.debugLogger.trackClick(
+                    `${elementTag}#${elementId}.${elementClass}`,
+                    `Text: "${elementText}" at (${event.clientX}, ${event.clientY})`
+                );
+            });
+        }
+        
+        // Fallback to ensure UI is visible even if JavaScript fails
+        function ensureUIVisible() {
+            const mainContent = document.getElementById('mainContent');
+            const loader = document.getElementById('loader');
+            const privacyOverlay = document.getElementById('privacyOverlay');
+            
+            if (mainContent) mainContent.style.display = 'block';
+            if (loader) loader.style.display = 'none';
+            if (privacyOverlay) privacyOverlay.style.display = 'none';
+            
+            console.log('UI visibility ensured');
+        }
+        
+        // Initialize IP Checker when DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            window.debugLogger.info('=== DOM CONTENT LOADED ===');
+            
+            // Ensure UI is visible
+            ensureUIVisible();
+            
+            window.debugLogger.info('Setting up global click tracking...');
+            setupGlobalClickTracking();
+            
+            window.debugLogger.info('Checking Leaflet availability...');
+            
+            if (typeof L !== 'undefined') {
+                window.debugLogger.info('Leaflet library loaded successfully');
+                window.debugLogger.info(`Leaflet version: ${L.version || 'Unknown'}`);
+            } else {
+                window.debugLogger.error('Leaflet library not loaded!');
+            }
+            
+            // Ensure main content is visible
+            const mainContent = document.getElementById('mainContent');
+            if (mainContent) {
+                mainContent.style.display = 'block';
+                window.debugLogger.info('Main content made visible');
+            }
+            
+            // Hide loading screen
+            const loader = document.getElementById('loader');
+            if (loader) {
+                loader.style.display = 'none';
+                window.debugLogger.info('Loading screen hidden');
+            }
+            
+            window.debugLogger.info('Initializing IPChecker...');
+            window.ipChecker = new IPChecker();
+            window.debugLogger.info('IPChecker initialized successfully');
+            
+            // Update status indicator
+            const statusText = document.getElementById('statusText');
+            if (statusText) {
+                statusText.textContent = 'Ready - Enter an IP address above';
+                window.debugLogger.info('Status indicator updated');
+            }
+            
+            // Global functions for debug modal
+            window.clearDebugLog = function() {
+                if (window.ipChecker) {
+                    window.ipChecker.clearDebugLog();
+                }
+            };
+            
+            window.filterDebugLog = function(filter) {
+                if (window.ipChecker) {
+                    window.ipChecker.filterDebugLog(filter);
+                }
+            };
+            
+            window.copyDebugLogToClipboard = function() {
+                if (window.ipChecker) {
+                    window.ipChecker.copyDebugLogToClipboard();
+                }
+            };
+        });
+    </script>
+    
+    <script src="security-enhancement.js"></script>
+    
+<!--Start of Tawk.to Script-->
+<script type="text/javascript">
+var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
+(function(){
+var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];
+s1.async=true;
+s1.src='https://embed.tawk.to/688b284b9abe48192a749848/1j1s0h5i3';
+s1.charset='UTF-8';
+s1.setAttribute('crossorigin','*');
+s0.parentNode.insertBefore(s1,s0);
+})();
+</script>
+<!--End of Tawk.to Script-->
+  </body>
+</html> 

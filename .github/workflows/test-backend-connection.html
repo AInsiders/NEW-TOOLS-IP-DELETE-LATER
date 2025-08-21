@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Backend Connection Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #1a1a1a;
+            color: #fff;
+        }
+        .test-section {
+            background: #333;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+        .success { color: #4CAF50; }
+        .error { color: #f44336; }
+        .warning { color: #ff9800; }
+        button {
+            background: #0066ff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #0052cc;
+        }
+        pre {
+            background: #222;
+            padding: 10px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>Backend Connection Test</h1>
+    
+    <div class="test-section">
+        <h2>Health Check</h2>
+        <button onclick="testHealth()">Test Health Endpoint</button>
+        <div id="healthResult"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>IP Lookup Test</h2>
+        <input type="text" id="testIP" value="8.8.8.8" placeholder="Enter IP address">
+        <button onclick="testIPLookup()">Test IP Lookup</button>
+        <div id="ipResult"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Cache Statistics</h2>
+        <button onclick="testCacheStats()">Get Cache Stats</button>
+        <div id="cacheResult"></div>
+    </div>
+
+    <script>
+        const BACKEND_URL = 'http://localhost:3000';
+        
+        async function testHealth() {
+            const resultDiv = document.getElementById('healthResult');
+            resultDiv.innerHTML = '<p class="warning">Testing...</p>';
+            
+            try {
+                const response = await fetch(`${BACKEND_URL}/api/health`);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    resultDiv.innerHTML = `
+                        <p class="success">✅ Health check successful!</p>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `
+                        <p class="error">❌ Health check failed: ${response.status}</p>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <p class="error">❌ Connection failed: ${error.message}</p>
+                    <p>Make sure the backend server is running on port 3000</p>
+                `;
+            }
+        }
+        
+        async function testIPLookup() {
+            const resultDiv = document.getElementById('ipResult');
+            const ip = document.getElementById('testIP').value.trim();
+            
+            if (!ip) {
+                resultDiv.innerHTML = '<p class="error">Please enter an IP address</p>';
+                return;
+            }
+            
+            resultDiv.innerHTML = '<p class="warning">Testing IP lookup...</p>';
+            
+            try {
+                const response = await fetch(`${BACKEND_URL}/api/ip/${ip}`);
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    resultDiv.innerHTML = `
+                        <p class="success">✅ IP lookup successful! (Source: ${data.source})</p>
+                        <pre>${JSON.stringify(data.data, null, 2)}</pre>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `
+                        <p class="error">❌ IP lookup failed: ${data.error || 'Unknown error'}</p>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <p class="error">❌ Connection failed: ${error.message}</p>
+                    <p>Make sure the backend server is running on port 3000</p>
+                `;
+            }
+        }
+        
+        async function testCacheStats() {
+            const resultDiv = document.getElementById('cacheResult');
+            resultDiv.innerHTML = '<p class="warning">Getting cache stats...</p>';
+            
+            try {
+                const response = await fetch(`${BACKEND_URL}/api/cache/stats`);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    resultDiv.innerHTML = `
+                        <p class="success">✅ Cache stats retrieved!</p>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `
+                        <p class="error">❌ Cache stats failed: ${response.status}</p>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <p class="error">❌ Connection failed: ${error.message}</p>
+                    <p>Make sure the backend server is running on port 3000</p>
+                `;
+            }
+        }
+        
+        // Auto-test on page load
+        window.onload = function() {
+            console.log('Testing backend connection...');
+            testHealth();
+        };
+    </script>
+</body>
+</html>

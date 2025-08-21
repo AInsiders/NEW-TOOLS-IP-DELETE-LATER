@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IP Blacklist Checker - A.Insiders</title>
+    <meta name="description" content="Check IP addresses against DNS-based blacklists. Simple and fast blacklist checking for IP addresses.">
+    <meta name="keywords" content="ip blacklist checker, dns blacklist, ip blocklist, blacklist check, dnsbl">
+    
+    <!-- Favicon Setup -->
+    <link rel="icon" type="image/png" href="ainsiders-logo.png" id="main-favicon">
+    <link rel="apple-touch-icon" href="ainsiders-logo.png">
+    
+    <!-- Fonts, CSS, Font Awesome links -->
+    <link rel="stylesheet" href="brain-styles.css">
+    <link rel="stylesheet" href="sidebar-menu.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Leaflet CSS for maps -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
+    <!-- Cache Manager and Asset Preloader -->
+    <script src="browser-cache-manager.js"></script>
+    <script src="asset-preloader.js"></script>
+    
+    <!-- Optimized Background System -->
+    <script src="brain-script.js"></script>
+    
+    <!-- Favicon Animation Script -->
+    <script src="favicon-animation.js"></script>
+    
+    <style>
+        /* IP Ban Tester Specific Styles */
+        .ip-ban-tester-page {
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #0a0a0a 100%);
+            min-height: 100vh;
+        }
+
+        .ban-tester-hero {
+            background: linear-gradient(135deg, rgba(255, 0, 0, 0.1) 0%, rgba(255, 165, 0, 0.05) 100%);
+            padding: 4rem 0;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .ban-tester-hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,0,0,0.1)" stroke-width="0.5"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+            opacity: 0.3;
+        }
+
+        .ban-tester-hero .container {
+            position: relative;
+            z-index: 2;
+        }
+
+        .ban-tester-hero h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #ff0000, #ffa500);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 1rem;
+        }
+
+        .ban-tester-hero p {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            max-width: 800px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        .checker-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .ip-input-section {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .ip-input-section h2 {
+            color: var(--text-primary);
+            margin-bottom: 1.5rem;
+            font-size: 1.8rem;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 1rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .ip-input {
+            flex: 1;
+            padding: 1rem 1.5rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+        }
+
+        .ip-input:focus {
+            outline: none;
+            border-color: #ff0000;
+            box-shadow: 0 0 20px rgba(255, 0, 0, 0.3);
+        }
+
+        .ip-input::placeholder {
+            color: var(--text-secondary);
+        }
+
+        .current-ip-info {
+            background: rgba(255, 0, 0, 0.1);
+            border: 1px solid rgba(255, 0, 0, 0.3);
+            border-radius: 10px;
+            padding: 1rem;
+            margin-top: 1rem;
+            text-align: center;
+        }
+
+        .current-ip-label {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .current-ip-address {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.25rem;
+            color: #ff0000;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .copy-ip-btn {
+            background: rgba(255, 0, 0, 0.2);
+            border: 1px solid rgba(255, 0, 0, 0.3);
+            color: #ff0000;
+            padding: 0.5rem 1rem;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin: 0 auto;
+        }
+
+        .copy-ip-btn:hover {
+            background: rgba(255, 0, 0, 0.3);
+            border-color: #ff0000;
+            transform: translateY(-1px);
+        }
+
+        .copy-ip-btn.small {
+            background: rgba(255, 0, 0, 0.1);
+            border: 1px solid rgba(255, 0, 0, 0.2);
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+            margin-left: 0.5rem;
+            display: inline-flex;
+        }
+
+        .copy-ip-btn.small:hover {
+            background: rgba(255, 0, 0, 0.2);
+            border-color: #ff0000;
+        }
+
+        .copy-ip-btn.copied {
+            background: rgba(0, 170, 0, 0.2);
+            border-color: rgba(0, 170, 0, 0.3);
+            color: #00aa00;
+        }
+
+        .copy-ip-btn.copied i {
+            color: #00aa00;
+        }
+
+        .check-btn {
+            padding: 1rem 2rem;
+            background: linear-gradient(135deg, #ff0000, #ff6600);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .check-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(255, 0, 0, 0.3);
+        }
+
+        .check-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .message-container {
+            margin-top: 1rem;
+            padding: 1rem;
+            border-radius: 10px;
+            display: none;
+        }
+
+        .message-container.info {
+            background: rgba(77, 148, 255, 0.2);
+            border: 1px solid rgba(77, 148, 255, 0.3);
+            color: #4d94ff;
+        }
+
+        .message-container.error {
+            background: rgba(255, 68, 68, 0.2);
+            border: 1px solid rgba(255, 68, 68, 0.3);
+            color: #ff4444;
+        }
+
+        .message-container.success {
+            background: rgba(255, 0, 0, 0.2);
+            border: 1px solid rgba(255, 0, 0, 0.3);
+            color: #ff0000;
+        }
+
+        .results-section {
+            display: none;
+        }
+
+        /* Simple Blacklist Results Styles */
+        .blacklist-results {
+            margin-top: 2rem;
+        }
+
+        .blacklist-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .blacklist-item {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .blacklist-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .blacklist-item.listed {
+            background: rgba(255, 68, 68, 0.1);
+            border-color: rgba(255, 68, 68, 0.3);
+        }
+
+        .blacklist-item.not-listed {
+            background: rgba(0, 170, 0, 0.1);
+            border-color: rgba(0, 170, 0, 0.3);
+        }
+
+        .blacklist-name {
+            color: var(--text-primary);
+            font-weight: 500;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+        }
+
+        .blacklist-status {
+            font-weight: 600;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .blacklist-summary {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .summary-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+        }
+
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .stat-value {
+            color: var(--text-primary);
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .stat-value.listed {
+            color: #ff4444;
+        }
+
+        .stat-value.not-listed {
+            color: #00aa00;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #ff0000;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            .ban-tester-hero h1 {
+                font-size: 2rem;
+            }
+
+            .ban-tester-hero p {
+                font-size: 1rem;
+            }
+
+            .checker-container {
+                padding: 1rem;
+            }
+
+            .input-group {
+                flex-direction: column;
+            }
+
+            .blacklist-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body class="ip-ban-tester-page">
+    <!-- Loading Screen -->
+    <div id="loader" class="loader">...</div>
+
+    <!-- Website Content -->
+    <div id="website-content" class="website-content">
+        <!-- Navigation -->
+        <nav class="navbar">
+            <div class="nav-container">
+                <a href="index.html" class="nav-logo">
+                    <img src="ainsiders-logo.png" alt="A.Insiders Logo" class="logo-image" width="40" height="40">
+                    <span class="logo-text">A.I</span>
+                    <span class="logo-accent">NSIDERS</span>
+                </a>
+                <ul class="nav-menu">
+                    <li><a href="index.html" class="nav-link">Home</a></li>
+                    <li><a href="software.html" class="nav-link">Software</a></li>
+                    <li class="nav-dropdown">
+                        <div class="nav-link-container">
+                            <a href="about.html" class="nav-link">About</a>
+                            <span class="dropdown-arrow">▼</span>
+                        </div>
+                        <ul class="dropdown-menu">
+                            <li><a href="about.html" class="dropdown-link">About Company</a></li>
+                            <li><a href="blake-zimmerman.html" class="dropdown-link">Blake Zimmerman</a></li>
+                            <li><a href="babu-narayana.html" class="dropdown-link">Babu Narayana</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="contact.html" class="nav-link">Contact</a></li>
+                </ul>
+                <div class="nav-toggle">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Hero Section -->
+        <header class="ban-tester-hero">
+            <div class="container">
+                <h1>IP Blacklist Checker</h1>
+                <p>Check IP addresses against DNS-based blacklists. Simple and fast blacklist checking for IP addresses.</p>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="checker-container">
+            <!-- IP Input Section -->
+            <section class="ip-input-section">
+                <h2>Check IP Address Against Blacklists</h2>
+                <div class="input-group">
+                    <input type="text" id="ipInput" class="ip-input" placeholder="Enter IP address to check (e.g., 8.8.8.8)" required>
+                    <button id="checkBtn" class="check-btn">
+                        <i class="fas fa-search"></i>
+                        Check Blacklists
+                    </button>
+                </div>
+                
+                <div class="current-ip-info">
+                    <div class="current-ip-label">Your Current IP Address:</div>
+                    <div class="current-ip-address" id="currentIp">Loading...</div>
+                    <button id="copyCurrentIpBtn" class="copy-ip-btn" style="display: none;">
+                        <i class="fas fa-copy"></i>
+                        <span>Copy IP</span>
+                    </button>
+                </div>
+                
+                <div id="messageContainer"></div>
+            </section>
+
+            <!-- Results Section -->
+            <section id="resultsSection" class="results-section">
+                <!-- Blacklist results will be displayed here -->
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>A.Insiders</h4>
+                    <p>Advanced cybersecurity and AI solutions for the modern digital landscape.</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="software.html">Software</a></li>
+                        <li><a href="about.html">About</a></li>
+                        <li><a href="contact.html">Contact</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Connect</h4>
+                    <div class="social-links">
+                        <a href="#" title="LinkedIn" class="social-link"><i class="fab fa-linkedin"></i><span>LinkedIn</span></a>
+                        <a href="#" title="Twitter" class="social-link"><i class="fab fa-twitter"></i><span>Twitter</span></a>
+                        <a href="#" title="GitHub" class="social-link"><i class="fab fa-github"></i><span>GitHub</span></a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 A.Insiders. All rights reserved.</p>
+                <div class="footer-links">
+                    <a href="privacy-policy.html">Privacy Policy</a>
+                    <a href="terms-of-service.html">Terms of Service</a>
+                    <a href="cookie-policy.html">Cookie Policy</a>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Scripts -->
+    <script src="brain-script.js"></script>
+    <script src="shared-loader.js"></script>
+    <script src="mobile-nav.js"></script>
+    <script src="sphere-loader.js"></script>
+    <script src="ip-server-client.js"></script>
+    
+    <!-- Leaflet JS for maps -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <script src="ip-blacklist-checker.js"></script>
+    <script src="security-enhancement.js"></script>
+</body>
+</html> 

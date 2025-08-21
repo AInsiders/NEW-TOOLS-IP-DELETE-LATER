@@ -1,0 +1,39 @@
+﻿{
+    "hashes":  {
+                   "argon2":  88000,
+                   "SHA256":  990000000000,
+                   "MD5":  14300000000000,
+                   "bcrypt":  770000000
+               },
+    "scenarios":  {
+                      "quantum":  {
+                                      "S0":  1100000000,
+                                      "qeff":  1,
+                                      "Tdbl":  1.5
+                                  },
+                      "usb":  {
+                                  "Tdbl":  3,
+                                  "S0":  11000000
+                              },
+                      "workstation":  {
+                                          "Tdbl":  2,
+                                          "S0":  11000000000
+                                      },
+                      "super":  {
+                                    "Tdbl":  1.5,
+                                    "S0":  1100000000000
+                                }
+                  },
+    "ai_penalty_bits":  10,
+    "updated":  "2025-08-01T02:53:27.132Z",
+    "metadata":  {
+                     "sources":  [
+                                     "hashcat",
+                                     "quantum",
+                                     "supercomputer"
+                                 ],
+                     "improvement_factor":  1.1,
+                     "notes":  "Updated with real-world benchmark data",
+                     "last_update":  "2025-08-01T02:53:27.132Z"
+                 }
+}

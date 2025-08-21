@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>About A.Insiders - Company Overview</title>
+  
+  <!-- Favicon Setup -->
+  <link rel="icon" type="image/png" href="ainsiders-logo.png" id="main-favicon">
+  <link rel="apple-touch-icon" href="ainsiders-logo.png">
+  <meta name="description" content="Learn about A.Insiders, a leading company in AI and cybersecurity intelligence. Discover our mission, values, and the team behind our innovative solutions.">
+  <meta name="keywords" content="A.Insiders, about, company, AI, cybersecurity, team, mission, values">
+  
+  <!-- Security Headers -->
+  <meta http-equiv="X-Content-Type-Options" content="nosniff">
+  <meta http-equiv="X-Frame-Options" content="DENY">
+  <meta http-equiv="X-XSS-Protection" content="1; mode=block">
+  <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
+  <meta http-equiv="Permissions-Policy" content="geolocation=(), microphone=(), camera=()">
+  
+  <!-- Enhanced Cache Control Headers for Cloudflare -->
+  <meta http-equiv="Cache-Control" content="public, max-age=31536000, immutable, stale-while-revalidate=86400">
+  <meta http-equiv="Expires" content="31536000">
+  <meta http-equiv="ETag" content="about-v1.0">
+      <meta http-equiv="Last-Modified" content="2023-12-31T00:00:00Z">
+  
+  <!-- Optimized Asset Caching System with Cloudflare Headers -->
+  <link rel="stylesheet" href="brain-styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  
+  <!-- Preload critical assets with Cloudflare caching -->
+  <link rel="preload" href="brain-script.js?v=1.0" as="script" crossorigin="anonymous">
+  <link rel="preload" href="shared-loader.js?v=1.0" as="script" crossorigin="anonymous">
+  <link rel="preload" href="mobile-nav.js?v=1.0" as="script" crossorigin="anonymous">
+  <link rel="preload" href="sphere-loader.js?v=1.0" as="script" crossorigin="anonymous">
+  <link rel="preload" href="ainsiders-logo.png?v=1.0" as="image" type="image/png">
+  <link rel="preload" href="logo.svg?v=1.0" as="image" type="image/svg+xml">
+  
+  <!-- Cache Manager and Asset Preloader with Cloudflare caching -->
+  <script src="browser-cache-manager.js"></script>
+  <script src="asset-preloader.js"></script>
+  
+  <!-- Optimized Background System -->
+  <script src="brain-script.js"></script>
+  
+  <!-- Font Awesome with CDN and Fallback -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer">
+  
+  <!-- Favicon Animation Script -->
+  <script src="favicon-animation.js"></script>
+  
+  <!-- Tawk.to Widget Styles -->
+  <style>
+    /* Make Tawk.to widget half the size */
+    #tawkto-container,
+    .tawkto-container,
+    .tawkto-widget,
+    .tawkto-minimized,
+    .tawkto-maximized,
+    .tawkto-iframe,
+    .tawkto-button,
+    .tawkto-bubble,
+    .tawkto-chat,
+    .tawkto-widget-container,
+    .tawkto-widget-container *,
+    iframe[src*="tawk.to"],
+    div[data-tawk-to],
+    .tawkto,
+    .tawkto * {
+      transform: scale(0.5) !important;
+      transform-origin: bottom right !important;
+    }
+  </style>
+  <style>
+    .team-profile-picture {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid #667eea;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .team-profile-picture:hover {
+      transform: scale(1.05);
+      box-shadow: 0 12px 35px rgba(0,0,0,0.25);
+    }
+    
+    .team-avatar {
+      position: relative;
+      width: 120px;
+      height: 120px;
+      margin: 0 auto 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    /* Enhanced Performance Animations */
+    .fade-section {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+    }
+    
+    .fade-section.fade-in {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    
+    .team-card {
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      will-change: transform, opacity;
+    }
+    
+    .team-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+    }
+    
+    .product-card {
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      will-change: transform, opacity;
+    }
+    
+    .product-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+    }
+    
+    .value-card {
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      will-change: transform, opacity;
+    }
+    
+    .value-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+    }
+    
+    /* Smooth scroll behavior */
+    html {
+      scroll-behavior: smooth;
+    }
+    
+    /* Performance optimizations */
+    .team-card *,
+    .product-card *,
+    .value-card * {
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+    }
+    
+    /* Reduced motion support */
+    @media (prefers-reduced-motion: reduce) {
+      .team-card,
+      .product-card,
+      .value-card,
+      .fade-section {
+        transition: none;
+        animation: none;
+      }
+    }
+    
+    /* Ensure background extends all the way down */
+    body.about-page {
+      min-height: 100vh;
+      background: var(--bg-primary);
+    }
+    
+    .website-content {
+      min-height: 100vh;
+      background: var(--bg-primary);
+    }
+    
+    #aiCanvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+      opacity: 0.3;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body class="about-page">
+  <!-- Loading Screen -->
+  <div id="loader" class="loader">
+    <canvas></canvas>
+    <div class="spark-text">It All Starts With A Spark</div>
+    <div class="continue-text">Click Anywhere To Continue</div>
+  </div>
+
+  <!-- Website Content -->
+  <div id="website-content" class="website-content">
+
+  <!-- Navigation -->
+  <nav class="navbar">
+    <div class="nav-container">
+                      <a href="index.html" class="nav-logo">
+                    <img src="ainsiders-logo.png" alt="A.Insiders Logo" class="logo-image" width="40" height="40">
+                    <span class="logo-text">A.I</span>
+                    <span class="logo-accent">NSIDERS</span>
+                </a>
+      <ul class="nav-menu">
+        <li><a href="index.html" class="nav-link">Home</a></li>
+
+                            <li><a href="software.html" class="nav-link">Software</a></li>
+                    <li class="nav-dropdown">
+          <div class="nav-link-container">
+            <a href="about.html" class="nav-link active">About</a>
+            <span class="dropdown-arrow">▼</span>
+          </div>
+          <ul class="dropdown-menu">
+            <li><a href="about.html" class="dropdown-link active">About Company</a></li>
+            <li><a href="blake-zimmerman.html" class="dropdown-link">Blake Zimmerman</a></li>
+            <li><a href="babu-narayana.html" class="dropdown-link">Babu Narayana</a></li>
+          </ul>
+        </li>
+        <li><a href="contact.html" class="nav-link">Contact</a></li>
+      </ul>
+      <div class="nav-toggle">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Performance Optimization: Preload critical images -->
+  <link rel="preload" href="blake-zimmerman.jpg" as="image" type="image/jpeg">
+  <link rel="preload" href="ainsiders-logo.png" as="image" type="image/png">
+  <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com">
+  <link rel="dns-prefetch" href="https://fonts.googleapis.com">
+  <link rel="dns-prefetch" href="https://fonts.gstatic.com">
+
+  <!-- Company Hero Section -->
+  <header class="page-hero">
+    <canvas id="aiCanvas"></canvas>
+    <div class="hero-content">
+      <h1 class="page-title">About A.Insiders</h1>
+      <p class="page-subtitle">Pioneering the future of technology with innovative solutions and cutting-edge applications</p>
+    </div>
+  </header>
+
+  <!-- Company Overview Section -->
+  <section class="company-overview fade-section">
+    <div class="container">
+      <div class="overview-content">
+        <div class="overview-text">
+          <h2>About A.Insiders</h2>
+          <p class="intro-text">A.Insiders is a cutting-edge technology company that evolved from CellCurity, a mobile phone solution company formed in 2016 when Blake Zimmerman and Babu Narayana first met. Both founders began their technology journeys at a young age, developing their expertise independently before joining forces. With each founder bringing over 20+ years of individual experience to the partnership, our founders have transformed the company into A.Insiders in 2023, expanding our focus to include AI, cybersecurity, and comprehensive technology solutions. We specialize in developing Android applications, news platforms, and security solutions that push the boundaries of what's possible in the digital landscape.</p>
+          
+          <p>Our mission is to create technology solutions that not only meet today's challenges but anticipate tomorrow's opportunities. From our flagship news application to our upcoming security tools, every product we develop is designed with the user's privacy, security, and experience at the forefront.</p>
+          
+          <div class="company-highlights">
+            <div class="highlight-item">
+              <div class="highlight-icon">🚀</div>
+              <h3>Innovation First</h3>
+              <p>Pioneering next-generation applications with cutting-edge technology</p>
+            </div>
+            <div class="highlight-item">
+              <div class="highlight-icon">🔒</div>
+              <h3>Privacy & Security</h3>
+              <p>AES-256 encryption and post-quantum security measures in all our products</p>
+            </div>
+            <div class="highlight-item">
+              <div class="highlight-icon">🌐</div>
+              <h3>Global Reach</h3>
+              <p>Serving users worldwide with remote-first operations and global accessibility</p>
+            </div>
+          </div>
+        </div>
+        
+        <div class="company-stats">
+          <div class="stat-card">
+            <div class="stat-number">5+</div>
+            <div class="stat-label">Applications in Development</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number">1</div>
+            <div class="stat-label">Live Application</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number">100%</div>
+            <div class="stat-label">Privacy Focused</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number">2016</div>
+            <div class="stat-label">Originally Founded</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number">2023</div>
+            <div class="stat-label">Rebranded to A.Insiders</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Team Section -->
+  <section class="team-section fade-section">
+    <div class="container">
+      <div class="section-header">
+        <h2 class="section-title">Our Team</h2>
+        <p class="section-subtitle">Meet the innovative minds behind A.Insiders</p>
+      </div>
+      
+      <div class="team-grid">
+        <div class="team-card">
+          <div class="team-avatar">
+            <img src="ainsiders-logo.png" alt="Blake Zimmerman" class="team-profile-picture">
+            <div class="avatar-glow"></div>
+          </div>
+          <div class="team-info">
+            <h3>Zimmerman, Blake</h3>
+            <p class="team-role">Owner & Founder</p>
+            <p class="team-description">Website Design Specialist & Technology Professional with expertise in AI, cybersecurity, and mobile technologies.</p>
+            <div class="team-skills">
+              <span class="skill-tag">Leadership</span>
+              <span class="skill-tag">Web Design</span>
+              <span class="skill-tag">AI Integration</span>
+              <span class="skill-tag">Cybersecurity</span>
+            </div>
+            <a href="blake-zimmerman.html" class="team-link">View Profile</a>
+          </div>
+        </div>
+        
+        <div class="team-card">
+          <div class="team-avatar">
+            <img src="ainsiders-logo.png" alt="Babu Narayana" class="team-profile-picture">
+            <div class="avatar-glow"></div>
+          </div>
+          <div class="team-info">
+            <h3>Narayana, Babu</h3>
+            <p class="team-role">Co-Founder</p>
+            <p class="team-description">Technology Leader & Strategic Partner with extensive experience in technology leadership and strategic development.</p>
+            <div class="team-skills">
+              <span class="skill-tag">Strategic Planning</span>
+              <span class="skill-tag">Technology Leadership</span>
+              <span class="skill-tag">Business Development</span>
+              <span class="skill-tag">Innovation</span>
+            </div>
+            <a href="babu-narayana.html" class="team-link">View Profile</a>
+          </div>
+        </div>
+        
+        <div class="team-card coming-soon">
+          <div class="team-avatar">
+            <div class="avatar-placeholder">+</div>
+            <div class="avatar-glow"></div>
+          </div>
+          <div class="team-info">
+            <h3>New Team Member</h3>
+            <p class="team-role">Position Available</p>
+            <p class="team-description">We're growing! Join our innovative team and help shape the future of technology.</p>
+            <div class="team-skills">
+              <span class="skill-tag">Innovation</span>
+              <span class="skill-tag">Collaboration</span>
+              <span class="skill-tag">Growth</span>
+            </div>
+            <a href="mailto:support@ainsidersnetwork.com" class="team-link">Join Us</a>
+          </div>
+        </div>
+        
+
+      </div>
+    </div>
+  </section>
+
+  <!-- Our Products Section -->
+  <section class="products-section fade-section">
+    <div class="container">
+      <div class="section-header">
+        <h2 class="section-title">Our Product Portfolio</h2>
+        <p class="section-subtitle">Innovative applications and solutions</p>
+      </div>
+      
+      <div class="products-grid">
+        <div class="product-card">
+          <div class="product-icon">📰</div>
+          <h3>A.Insiders News</h3>
+          <p class="product-status live">Live</p>
+          <p>Our flagship news application providing curated technology news with AI-powered content filtering and offline reading capabilities.</p>
+          <div class="product-features">
+            <span class="feature">AI Curation</span>
+            <span class="feature">Offline Reading</span>
+            <span class="feature">Privacy First</span>
+          </div>
+        </div>
+        
+        <div class="product-card">
+          <div class="product-icon">🦅</div>
+          <h3>Mocking Bird</h3>
+          <p class="product-status development">In Development</p>
+          <p>Advanced GPS mocking application for Android with precise location spoofing and battery optimization features.</p>
+          <div class="product-features">
+            <span class="feature">GPS Mocking</span>
+            <span class="feature">Battery Saving</span>
+            <span class="feature">Root Optional</span>
+          </div>
+        </div>
+        
+        <div class="product-card">
+          <div class="product-icon">🔒</div>
+          <h3>A.Safe</h3>
+          <p class="product-status coming-soon">Coming Soon</p>
+          <p>Offline password manager with AES-256 encryption, no internet dependencies, and quantum-resistant security measures.</p>
+          <div class="product-features">
+            <span class="feature">AES-256</span>
+            <span class="feature">Offline</span>
+            <span class="feature">Quantum Safe</span>
+          </div>
+        </div>
+        
+        <div class="product-card">
+          <div class="product-icon">📱</div>
+          <h3>Auto Bluetooth Disabler</h3>
+          <p class="product-status planning">Planning</p>
+          <p>Intelligent Bluetooth management tool that automatically disables Bluetooth when not needed to save battery and enhance security.</p>
+          <div class="product-features">
+            <span class="feature">Auto Disable</span>
+            <span class="feature">Battery Save</span>
+            <span class="feature">Security</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Company Values Section -->
+  <section class="values-section fade-section">
+    <div class="container">
+      <div class="section-header">
+        <h2 class="section-title">Our Core Values</h2>
+        <p class="section-subtitle">The principles that guide everything we do</p>
+      </div>
+      
+      <div class="values-grid">
+        <div class="value-card">
+          <div class="value-icon">🔒</div>
+          <h3>Privacy First</h3>
+          <p>Every application we develop prioritizes user privacy with end-to-end encryption and no unnecessary data collection.</p>
+        </div>
+        
+        <div class="value-card">
+          <div class="value-icon">🚀</div>
+          <h3>Innovation</h3>
+          <p>We constantly push the boundaries of what's possible, integrating cutting-edge technologies like AI and quantum-resistant security.</p>
+        </div>
+        
+        <div class="value-card">
+          <div class="value-icon">⚡</div>
+          <h3>Performance</h3>
+          <p>Our applications are optimized for speed, efficiency, and minimal resource consumption to provide the best user experience.</p>
+        </div>
+        
+        <div class="value-card">
+          <div class="value-icon">🌍</div>
+          <h3>Accessibility</h3>
+          <p>Technology should be accessible to everyone. We design with inclusivity and global reach in mind.</p>
+        </div>
+        
+        <div class="value-card">
+          <div class="value-icon">🔧</div>
+          <h3>Quality</h3>
+          <p>We maintain the highest standards in code quality, testing, and user experience across all our products.</p>
+        </div>
+        
+        <div class="value-card">
+          <div class="value-icon">🤝</div>
+          <h3>Transparency</h3>
+          <p>Open communication with our users and clear documentation of our security measures and development processes.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-section">
+          <h4>Quick Links</h4>
+          <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="about.html">About</a></li>
+            <li><a href="software.html">Software</a></li>
+            <li><a href="contact.html">Contact</a></li>
+          </ul>
+        </div>
+        <div class="footer-section">
+          <h4>Connect With Us</h4>
+          <div class="social-links">
+            <a href="https://www.linkedin.com/in/blake-zimmerman-a59575342/" class="social-link" title="LinkedIn" target="_blank" rel="noopener">
+              <i class="fab fa-linkedin"></i>
+              <span>LinkedIn</span>
+            </a>
+            <a href="https://github.com/AInsiders" class="social-link" title="GitHub" target="_blank" rel="noopener">
+              <i class="fab fa-github"></i>
+              <span>GitHub</span>
+            </a>
+            <a href="https://www.youtube.com/@A.Insiders01" class="social-link" title="YouTube" target="_blank" rel="noopener">
+              <i class="fab fa-youtube"></i>
+              <span>YouTube</span>
+            </a>
+            <a href="https://discord.gg/Y4kCtaBZFM" class="social-link" title="Discord" target="_blank" rel="noopener">
+              <i class="fab fa-discord"></i>
+              <span>Discord</span>
+            </a>
+          </div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2024 A.Insiders Network. All rights reserved.</p>
+        <div class="footer-links">
+          <a href="privacy-policy.html">Privacy Policy</a>
+          <a href="terms-of-service.html">Terms of Service</a>
+          <a href="cookie-policy.html">Cookie Policy</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  </div> <!-- End of website-content -->
+
+  <!-- Essential Scripts with Cloudflare caching -->
+  <script src="shared-loader.js"></script>
+  <script src="mobile-nav.js"></script>
+  <script src="sphere-loader.js"></script>
+  
+  <!-- About Page Enhancement Script -->
+  <script>
+    // About Page Enhancement Script
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('About page loaded with enhanced performance!');
+        
+        // Initialize about page functionality
+        initializeAboutPage();
+        
+        // Preload next likely pages for better UX
+        setTimeout(() => {
+            if (window.browserCacheManager) {
+                window.browserCacheManager.preloadPage('index');
+                window.browserCacheManager.preloadPage('contact');
+            }
+        }, 2000);
+    });
+    
+    function initializeAboutPage() {
+        // Smooth scroll for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+        
+        // Enhanced team card interactions
+        const teamCards = document.querySelectorAll('.team-card');
+        teamCards.forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-8px) scale(1.02)';
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0) scale(1)';
+            });
+        });
+        
+        // Smooth fade-in animations for sections
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+        
+        const sectionObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('fade-in');
+                }
+            });
+        }, observerOptions);
+        
+        document.querySelectorAll('.fade-section').forEach(section => {
+            sectionObserver.observe(section);
+        });
+        
+        // Performance monitoring
+        if ('performance' in window) {
+            window.addEventListener('load', function() {
+                const loadTime = performance.timing.loadEventEnd - performance.timing.navigationStart;
+                console.log(`About page loaded in ${loadTime}ms`);
+                
+                // Report performance metrics
+                if (window.gtag) {
+                    window.gtag('event', 'timing_complete', {
+                        'name': 'load',
+                        'value': loadTime
+                    });
+                }
+            });
+        }
+        
+        // Enhanced image loading
+        const images = document.querySelectorAll('img[data-src]');
+        const imageObserver = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const img = entry.target;
+                    img.src = img.dataset.src;
+                    img.classList.remove('lazy');
+                    observer.unobserve(img);
+                }
+            });
+        });
+        
+        images.forEach(img => imageObserver.observe(img));
+    }
+    
+    // Export for potential use in other scripts
+    window.aboutPage = {
+        initialize: initializeAboutPage
+    };
+    
+    // Ensure smooth loading by preloading critical images
+    window.addEventListener('load', function() {
+        // Preload team member images
+        const teamImages = [
+            'blake-zimmerman.jpg',
+            'ainsiders-logo.png'
+        ];
+        
+        teamImages.forEach(src => {
+            const img = new Image();
+            img.src = src + '?v=1.0';
+        });
+        
+        // Force a repaint to ensure smooth animations
+        document.body.style.display = 'none';
+        document.body.offsetHeight; // Trigger reflow
+        document.body.style.display = '';
+    });
+  </script>
+  
+  <script src="security-enhancement.js"></script>
+  
+
+  
+
+
+<!--Start of Tawk.to Script-->
+<script type="text/javascript">
+var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
+(function(){
+var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];
+s1.async=true;
+s1.src='https://embed.tawk.to/688b284b9abe48192a749848/1j1s0h5i3';
+s1.charset='UTF-8';
+s1.setAttribute('crossorigin','*');
+s0.parentNode.insertBefore(s1,s0);
+})();
+</script>
+<!--End of Tawk.to Script-->
+  </body>
+</html> 

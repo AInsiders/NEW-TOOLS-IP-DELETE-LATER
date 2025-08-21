@@ -1,0 +1,31 @@
+{
+  "name": "ip-api-server",
+  "version": "1.0.0",
+  "description": "Robust IP lookup service with caching and fallback APIs",
+  "main": "ip-api-server.js",
+  "scripts": {
+    "start": "node ip-api-server.js",
+    "dev": "nodemon ip-api-server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "ip",
+    "geolocation",
+    "api",
+    "cache",
+    "proxy"
+  ],
+  "author": "A.insiders",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}

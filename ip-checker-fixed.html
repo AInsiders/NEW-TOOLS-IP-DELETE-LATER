@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IP Location Checker - A.Insiders</title>
+    
+    <!-- Favicon Setup -->
+    <link rel="icon" type="image/png" href="ainsiders-logo.png" id="main-favicon">
+    <link rel="apple-touch-icon" href="ainsiders-logo.png">
+    <meta name="description" content="Check IP address location, geolocation data, ISP information, and network details with our comprehensive IP checker tool.">
+    <meta name="keywords" content="IP checker, IP location, geolocation, IP address lookup, ISP information, network details">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="brain-styles.css">
+    
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Leaflet CSS for maps -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
+    <style>
+        body {
+            background: #0a0a0a;
+            color: #ffffff;
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+        
+        .hero {
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.9), rgba(10, 10, 10, 0.9));
+            padding: 3rem 0;
+            text-align: center;
+        }
+        
+        .hero h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, #0066ff, #4d94ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .hero p {
+            font-size: 1.125rem;
+            color: #cccccc;
+            max-width: 600px;
+            margin: 0 auto 2rem;
+        }
+        
+        .ip-input-section {
+            background: rgba(0, 0, 0, 0.8);
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 2rem;
+            margin: 2rem auto;
+            max-width: 600px;
+        }
+        
+        .ip-input-group {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .ip-input {
+            flex: 1;
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid #333;
+            color: #ffffff;
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        
+        .ip-input:focus {
+            outline: none;
+            border-color: #0066ff;
+            box-shadow: 0 0 0 3px rgba(0, 102, 255, 0.1);
+        }
+        
+        .check-ip-btn {
+            background: #0066ff;
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .check-ip-btn:hover {
+            background: #0052cc;
+            transform: translateY(-2px);
+        }
+        
+        .check-ip-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .current-ip-info {
+            background: rgba(0, 102, 255, 0.1);
+            border: 1px solid rgba(0, 102, 255, 0.3);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1rem;
+            text-align: center;
+        }
+        
+        .current-ip-label {
+            color: #999;
+            font-size: 0.875rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .current-ip-address {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.25rem;
+            color: #0066ff;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+        
+        .copy-ip-btn {
+            background: rgba(0, 102, 255, 0.2);
+            border: 1px solid rgba(0, 102, 255, 0.3);
+            color: #0066ff;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin: 0 auto;
+        }
+        
+        .copy-ip-btn:hover {
+            background: rgba(0, 102, 255, 0.3);
+            border-color: #0066ff;
+            transform: translateY(-1px);
+        }
+        
+        .results-section {
+            padding: 3rem 0;
+        }
+        
+        .info-section {
+            margin-bottom: 3rem;
+            background: rgba(0, 0, 0, 0.8);
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 2rem;
+        }
+        
+        .section-header {
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #333;
+        }
+        
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #ffffff;
+            margin-bottom: 0.5rem;
+        }
+        
+        .section-subtitle {
+            color: #999;
+            font-size: 0.875rem;
+        }
+        
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+        
+        .detail-item {
+            padding: 1rem;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            border: 1px solid #333;
+        }
+        
+        .detail-label {
+            color: #999;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.5rem;
+        }
+        
+        .detail-value {
+            color: #ffffff;
+            font-size: 1rem;
+            font-weight: 500;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        
+        .detail-value.location {
+            color: #0066ff;
+        }
+        
+        .detail-value.isp {
+            color: #4d94ff;
+        }
+        
+        .map-container {
+            background: rgba(0, 0, 0, 0.8);
+            border: 1px solid #333;
+            border-radius: 8px;
+            overflow: hidden;
+            height: 400px;
+            position: relative;
+        }
+        
+        #ipMap {
+            width: 100%;
+            height: 100%;
+            background: #1a1a1a;
+        }
+        
+        .map-overlay {
+            position: absolute;
+            top: 1rem;
+            left: 1rem;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            z-index: 1000;
+        }
+        
+        .error-message {
+            background: rgba(255, 0, 0, 0.1);
+            border: 1px solid rgba(255, 0, 0, 0.3);
+            color: #ff6b6b;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+            display: none;
+        }
+        
+        .success-message {
+            background: rgba(0, 170, 0, 0.1);
+            border: 1px solid rgba(0, 170, 0, 0.3);
+            color: #00aa00;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+            display: none;
+        }
+        
+        .loading-spinner {
+            display: none;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top: 2px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-left: 0.5rem;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Privacy Policy Styles */
+        .privacy-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(10px);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+        
+        .privacy-modal {
+            background: rgba(0, 0, 0, 0.95);
+            border: 1px solid #0066ff;
+            border-radius: 8px;
+            max-width: 600px;
+            width: 100%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 0 50px rgba(0, 102, 255, 0.3);
+        }
+        
+        .privacy-header {
+            background: linear-gradient(135deg, #0066ff, #4d94ff);
+            padding: 1.5rem;
+            border-radius: 8px 8px 0 0;
+            text-align: center;
+        }
+        
+        .privacy-header h2 {
+            color: white;
+            margin: 0;
+            font-size: 1.5rem;
+        }
+        
+        .privacy-content {
+            padding: 2rem;
+            color: #ffffff;
+        }
+        
+        .privacy-content h3 {
+            color: #0066ff;
+            margin: 1.5rem 0 0.5rem 0;
+            font-size: 1.1rem;
+        }
+        
+        .privacy-content ul {
+            margin: 0.5rem 0 1rem 1.5rem;
+        }
+        
+        .privacy-content li {
+            margin-bottom: 0.25rem;
+            color: #cccccc;
+        }
+        
+        .privacy-content p {
+            margin-bottom: 1rem;
+            line-height: 1.6;
+        }
+        
+        .privacy-actions {
+            padding: 1.5rem 2rem 2rem;
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+        }
+        
+        .privacy-btn {
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1rem;
+        }
+        
+        .privacy-btn.accept {
+            background: #0066ff;
+            color: white;
+        }
+        
+        .privacy-btn.accept:hover {
+            background: #0052cc;
+            transform: translateY(-2px);
+        }
+        
+        .privacy-btn.decline {
+            background: rgba(255, 0, 0, 0.2);
+            color: #ff6b6b;
+            border: 1px solid rgba(255, 0, 0, 0.3);
+        }
+        
+        .privacy-btn.decline:hover {
+            background: rgba(255, 0, 0, 0.3);
+            transform: translateY(-2px);
+        }
+        
+        @media (max-width: 768px) {
+            .ip-input-group {
+                flex-direction: column;
+            }
+            
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .privacy-actions {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Privacy Policy Overlay -->
+    <div id="privacyOverlay" class="privacy-overlay" style="display: none;">
+        <div class="privacy-modal">
+            <div class="privacy-header">
+                <h2><i class="fas fa-shield-alt"></i> Privacy Policy - IP Checker</h2>
+            </div>
+            <div class="privacy-content">
+                <p><strong>Important:</strong> This IP Checker tool collects and processes your IP address information to provide location and network details.</p>
+                
+                <h3>What We Collect:</h3>
+                <ul>
+                    <li>Your current IP address</li>
+                    <li>Geolocation data (country, city, coordinates)</li>
+                    <li>Network information (ISP, ASN)</li>
+                    <li>Browser and system information</li>
+                </ul>
+                
+                <h3>How We Use It:</h3>
+                <ul>
+                    <li>Display your IP location on the map</li>
+                    <li>Show network and ISP details</li>
+                    <li>Provide IP analysis tools</li>
+                    <li>Store search history locally (your device only)</li>
+                </ul>
+                
+                <h3>Data Protection:</h3>
+                <ul>
+                    <li>All data is processed locally in your browser</li>
+                    <li>No personal information is sent to our servers</li>
+                    <li>Search history is stored only on your device</li>
+                    <li>You can clear history anytime</li>
+                </ul>
+                
+                <p><strong>By accepting, you agree to allow this tool to access your IP address and related network information.</strong></p>
+            </div>
+            <div class="privacy-actions">
+                <button id="acceptPrivacy" class="privacy-btn accept">
+                    <i class="fas fa-check"></i> Accept & Continue
+                </button>
+                <button id="declinePrivacy" class="privacy-btn decline">
+                    <i class="fas fa-times"></i> Decline
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div id="mainContent" style="display: none;">
+        <!-- Hero Section -->
+        <header class="hero">
+            <div class="container">
+                <h1>IP Location Checker</h1>
+                <p>Get detailed information about any IP address including geolocation, ISP details, and network information</p>
+                
+                <div class="ip-input-section">
+                    <div class="ip-input-group">
+                        <input type="text" id="ipInput" class="ip-input" placeholder="Enter IP address (e.g., 8.8.8.8)" maxlength="45">
+                        <button id="checkIpBtn" class="check-ip-btn">
+                            <span>Check IP</span>
+                            <div class="loading-spinner" id="loadingSpinner"></div>
+                        </button>
+                    </div>
+                    
+                    <div class="current-ip-info">
+                        <div class="current-ip-label">Your Current IP Address:</div>
+                        <div class="current-ip-address" id="currentIp">Loading...</div>
+                        <button id="copyCurrentIpBtn" class="copy-ip-btn" style="display: none;">
+                            <i class="fas fa-copy"></i>
+                            <span>Copy IP</span>
+                        </button>
+                    </div>
+                    
+                    <div class="error-message" id="errorMessage"></div>
+                    <div class="success-message" id="successMessage"></div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Results Section -->
+        <section class="results-section" id="resultsSection" style="display: none;">
+            <div class="container">
+                <!-- Network Information Section -->
+                <div class="info-section">
+                    <div class="section-header">
+                        <h2 class="section-title">Network Information</h2>
+                        <p class="section-subtitle">Domain, ISP, and network details</p>
+                    </div>
+                    <div class="info-grid" id="networkGrid">
+                        <!-- Network details will be populated by JavaScript -->
+                    </div>
+                </div>
+
+                <!-- Geographical Data Section -->
+                <div class="info-section">
+                    <div class="section-header">
+                        <h2 class="section-title">Geographical Data</h2>
+                        <p class="section-subtitle">Location and mapping information</p>
+                    </div>
+                    <div class="map-container">
+                        <div id="ipMap"></div>
+                        <div class="map-overlay">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <span id="mapLocation">Location will appear here</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <script>
+        class IPChecker {
+            constructor() {
+                this.map = null;
+                this.marker = null;
+                this.currentIP = null;
+                this.privacyAccepted = localStorage.getItem('ipCheckerPrivacyAccepted') === 'true';
+                this.init();
+            }
+
+            init() {
+                if (!this.privacyAccepted) {
+                    this.showPrivacyPolicy();
+                } else {
+                    this.showMainContent();
+                    this.detectCurrentIP();
+                    this.setupEventListeners();
+                }
+            }
+
+            showPrivacyPolicy() {
+                document.getElementById('privacyOverlay').style.display = 'flex';
+                document.body.style.overflow = 'hidden';
+                
+                document.getElementById('acceptPrivacy').addEventListener('click', () => {
+                    this.acceptPrivacyPolicy();
+                });
+                
+                document.getElementById('declinePrivacy').addEventListener('click', () => {
+                    this.declinePrivacyPolicy();
+                });
+            }
+
+            acceptPrivacyPolicy() {
+                localStorage.setItem('ipCheckerPrivacyAccepted', 'true');
+                this.privacyAccepted = true;
+                this.hidePrivacyPolicy();
+                this.showMainContent();
+                this.detectCurrentIP();
+                this.setupEventListeners();
+            }
+
+            declinePrivacyPolicy() {
+                alert('You must accept the privacy policy to use this tool.');
+                this.showPrivacyPolicy();
+            }
+
+            hidePrivacyPolicy() {
+                document.getElementById('privacyOverlay').style.display = 'none';
+                document.body.style.overflow = 'auto';
+            }
+
+            showMainContent() {
+                document.getElementById('mainContent').style.display = 'block';
+            }
+
+            async detectCurrentIP() {
+                try {
+                    console.log('Detecting current IP...');
+                    const response = await fetch('https://api.ipify.org?format=json');
+                    const data = await response.json();
+                    this.currentIP = data.ip;
+                    document.getElementById('currentIp').textContent = this.currentIP;
+                    
+                    const copyCurrentIpBtn = document.getElementById('copyCurrentIpBtn');
+                    copyCurrentIpBtn.style.display = 'flex';
+                    
+                    console.log('Current IP detected:', this.currentIP);
+                    
+                    // Automatically load current IP details
+                    await this.loadCurrentIPDetails();
+                } catch (error) {
+                    console.error('Failed to detect current IP:', error);
+                    document.getElementById('currentIp').textContent = 'Unable to load';
+                }
+            }
+
+            async loadCurrentIPDetails() {
+                if (!this.currentIP) return;
+                
+                try {
+                    const data = await this.getIPInfo(this.currentIP);
+                    this.displayResults(data);
+                } catch (error) {
+                    console.error('Failed to load current IP details:', error);
+                }
+            }
+
+            async getIPInfo(ip) {
+                try {
+                    console.log(`Getting IP info for: ${ip}`);
+                    const response = await fetch(`https://ipapi.co/${ip}/json/`);
+                    const data = await response.json();
+                    
+                    if (data.error) {
+                        throw new Error(data.reason || 'Failed to get IP info');
+                    }
+                    
+                    return {
+                        ip: ip,
+                        country_name: data.country_name || 'Unknown',
+                        country_code: data.country_code || 'Unknown',
+                        region: data.region || 'Unknown',
+                        city: data.city || 'Unknown',
+                        latitude: parseFloat(data.latitude) || 0,
+                        longitude: parseFloat(data.longitude) || 0,
+                        org: data.org || 'Unknown',
+                        asn: data.asn || 'Unknown',
+                        hostname: data.hostname || 'Unknown',
+                        timezone: data.timezone || 'Unknown',
+                        postal: data.postal || 'Unknown'
+                    };
+                } catch (error) {
+                    console.error('Error getting IP info:', error);
+                    throw error;
+                }
+            }
+
+            setupEventListeners() {
+                const checkBtn = document.getElementById('checkIpBtn');
+                const ipInput = document.getElementById('ipInput');
+                const copyCurrentIpBtn = document.getElementById('copyCurrentIpBtn');
+
+                checkBtn.addEventListener('click', () => this.checkIP());
+                ipInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        this.checkIP();
+                    }
+                });
+
+                copyCurrentIpBtn.addEventListener('click', () => {
+                    this.copyToClipboard(this.currentIP);
+                });
+
+                ipInput.focus();
+            }
+
+            async checkIP() {
+                const ipInput = document.getElementById('ipInput');
+                const checkBtn = document.getElementById('checkIpBtn');
+                const loadingSpinner = document.getElementById('loadingSpinner');
+
+                const ip = ipInput.value.trim();
+                if (!ip) {
+                    this.showError('Please enter an IP address');
+                    return;
+                }
+
+                if (!this.isValidIP(ip)) {
+                    this.showError('Please enter a valid IP address');
+                    return;
+                }
+
+                checkBtn.disabled = true;
+                loadingSpinner.style.display = 'inline-block';
+                this.hideMessages();
+
+                try {
+                    const data = await this.getIPInfo(ip);
+                    this.displayResults(data);
+                    this.showSuccess('IP information retrieved successfully');
+                } catch (error) {
+                    this.showError('Failed to retrieve IP information. Please try again.');
+                } finally {
+                    checkBtn.disabled = false;
+                    loadingSpinner.style.display = 'none';
+                }
+            }
+
+            isValidIP(ip) {
+                const ipv4Regex = /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
+                return ipv4Regex.test(ip);
+            }
+
+            displayResults(data) {
+                const resultsSection = document.getElementById('resultsSection');
+                const mapLocation = document.getElementById('mapLocation');
+
+                resultsSection.style.display = 'block';
+
+                const location = `${data.city || 'Unknown'}, ${data.country_name || 'Unknown'}`;
+                mapLocation.textContent = location;
+
+                this.populateNetworkInfo(data);
+                this.initializeMap(data.latitude, data.longitude, location);
+            }
+
+            populateNetworkInfo(data) {
+                const networkGrid = document.getElementById('networkGrid');
+                const networkHTML = `
+                    <div class="detail-item">
+                        <div class="detail-label">IP Address</div>
+                        <div class="detail-value">${data.ip}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Location</div>
+                        <div class="detail-value location">${data.city || 'Unknown'}, ${data.country_name || 'Unknown'}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Coordinates</div>
+                        <div class="detail-value">${data.latitude || 'N/A'} / ${data.longitude || 'N/A'}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">ISP</div>
+                        <div class="detail-value isp">${data.org || 'Unknown'}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">ASN</div>
+                        <div class="detail-value">${data.asn || 'Unknown'}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Timezone</div>
+                        <div class="detail-value">${data.timezone || 'Unknown'}</div>
+                    </div>
+                `;
+                networkGrid.innerHTML = networkHTML;
+            }
+
+            initializeMap(lat, lng, location) {
+                const mapContainer = document.getElementById('ipMap');
+
+                if (this.map) {
+                    this.map.remove();
+                }
+
+                this.map = L.map('ipMap').setView([lat || 0, lng || 0], 10);
+
+                L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+                    attribution: '©OpenStreetMap, ©CartoDB',
+                    subdomains: 'abcd',
+                    maxZoom: 19
+                }).addTo(this.map);
+
+                if (lat && lng) {
+                    this.marker = L.marker([lat, lng]).addTo(this.map);
+                    this.marker.bindPopup(`<b>${location}</b><br>IP Location`).openPopup();
+                }
+            }
+
+            async copyToClipboard(text) {
+                if (!text) {
+                    this.showError('No IP address to copy');
+                    return;
+                }
+
+                try {
+                    await navigator.clipboard.writeText(text);
+                    this.showSuccess('IP address copied to clipboard!');
+                } catch (err) {
+                    const textArea = document.createElement('textarea');
+                    textArea.value = text;
+                    document.body.appendChild(textArea);
+                    textArea.select();
+                    try {
+                        document.execCommand('copy');
+                        this.showSuccess('IP address copied to clipboard!');
+                    } catch (fallbackErr) {
+                        this.showError('Failed to copy IP address');
+                    }
+                    document.body.removeChild(textArea);
+                }
+            }
+
+            showError(message) {
+                const errorMessage = document.getElementById('errorMessage');
+                errorMessage.textContent = message;
+                errorMessage.style.display = 'block';
+                document.getElementById('successMessage').style.display = 'none';
+            }
+
+            showSuccess(message) {
+                const successMessage = document.getElementById('successMessage');
+                successMessage.textContent = message;
+                successMessage.style.display = 'block';
+                document.getElementById('errorMessage').style.display = 'none';
+            }
+
+            hideMessages() {
+                document.getElementById('errorMessage').style.display = 'none';
+                document.getElementById('successMessage').style.display = 'none';
+            }
+        }
+
+        // Initialize IP Checker when DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            window.ipChecker = new IPChecker();
+        });
+    </script>
+</body>
+</html>
